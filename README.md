@@ -1,69 +1,54 @@
-# React + TypeScript + Vite
+# 🌍 DreamVision Geofencing Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web portal for visualizing and managing **geofences** across microfinance institution (MFI) hierarchies. Built with React, Vite, Google Maps API, and Tailwind CSS (ShadCN UI), this platform enables structured creation, drawing, and metadata association of polygon-based geofences.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- 🔒 Form-driven geofence creation (name, type, priority, parent, metadata)
+- 🖍️ Google Maps polygon drawing, editable in real-time
+- 🧠 Dynamic key-value metadata fields
+- 🧭 Parent-child hierarchy support for geofences
+- 🎨 Tailwind + ShadCN UI for enterprise-grade design
+- ⚙️ TypeScript-first codebase
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+| Layer        | Tools Used                             |
+|--------------|-----------------------------------------|
+| Frontend     | React + Vite                            |
+| Mapping      | `@vis.gl/react-google-maps`, Google Maps API |
+| UI Framework | TailwindCSS + [shadcn/ui](https://ui.shadcn.com) |
+| Language     | TypeScript                              |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+
+## 📦 Installation
+
+```bash
+git clone git@github.com:raneesh-gomez/dreamvision-geofencing-poc.git
+cd dreamvision-geofencing-poc
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔑 Environment Variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a `.env` file in the root directory:
+```bash
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+``` 
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Do **not** commit your `.env` file to version control.
+
+
+## 💻 Development 
+
+```bash
+npm run dev
+``` 
+Then open [http://localhost:5173](http://localhost:5173) in your browser.
+
+
+## 🧑‍💻 Contributing 
+
+Pull requests are welcome! For major changes, please open an issue to discuss your ideas first.
