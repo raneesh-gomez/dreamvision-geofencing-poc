@@ -90,7 +90,7 @@ const GeofenceSidebar = ({ geofences, onSubmit }: GeofenceSidebarProps) => {
                     <Plus className="w-5 h-5" />Create Geofence
                 </Button>
             </DialogTrigger>
-            <DialogContent className="space-y-4 max-h-[90vh] overflow-y-auto">
+            <DialogContent className="space-y-2 max-h-[90vh] overflow-y-auto">
                 <DialogTitle>
                     <span>Create Geofence</span>
                 </DialogTitle>
@@ -125,16 +125,16 @@ const GeofenceSidebar = ({ geofences, onSubmit }: GeofenceSidebarProps) => {
                         <div className="pb-4 space-y-3">
                             <Label>Parent Geofence</Label>
                             <Select onValueChange={(value) => handleSelectChange(value, "parentId")}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select parent (required)" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {validParentGeofences.map((g) => (
-                                    <SelectItem key={g.id} value={g.id}>
-                                        {g.data.name} ({GeofenceTypeLabels[g.data.type]})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select parent (required)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {validParentGeofences.map((g) => (
+                                        <SelectItem key={g.id} value={g.id}>
+                                            {g.data.name} ({GeofenceTypeLabels[g.data.type]})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
                             </Select>
                         </div>
                     )}
@@ -208,8 +208,6 @@ const GeofenceSidebar = ({ geofences, onSubmit }: GeofenceSidebarProps) => {
             <h3 className="text-sm font-medium text-gray-700 mb-2">🏢 Organization Hierarchy</h3>
             <GeofenceHierarchy geofences={geofences} />
         </div>
-
-        
 
         <div className="mt-auto px-2 py-3 text-xs text-center text-gray-400">
             Dreamstart Labs · 2025
