@@ -28,7 +28,7 @@ export interface GeofenceData {
 export interface GeofencePolygon {
   id: string;
   path: LatLngCoord[];
-  metadata: GeofenceData;
+  data: GeofenceData;
 }
 
 export type {

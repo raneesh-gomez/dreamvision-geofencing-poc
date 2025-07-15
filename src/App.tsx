@@ -15,13 +15,13 @@ function App() {
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
       <div className='flex'>
-        <div className='flex-col w-1/6'>
+        <div className='flex-col w-1/3'>
           <GeofenceSidebar 
-            geofences={geofences.map(g => ({ id: g.id, name: g.metadata.name }))}
+            geofences={geofences}
             onSubmit={startDrawing}
           />
         </div>
-        <div className='flex-col w-5/6'>
+        <div className='flex-col w-2/3'>
           <Map
             style={{height: '100vh'}}
             defaultCenter={{lat: 22.54992, lng: 0}}

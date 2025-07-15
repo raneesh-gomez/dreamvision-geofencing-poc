@@ -18,7 +18,7 @@ export const useGeofenceStore = () => {
     const newGeofence: GeofencePolygon = {
       id,
       path,
-      metadata: { ...activeForm },
+      data: { ...activeForm },
     };
     setGeofences(prev => [...prev, newGeofence]);
     setDrawingEnabled(false);
