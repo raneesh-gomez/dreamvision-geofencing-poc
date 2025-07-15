@@ -1,4 +1,4 @@
-import type { GeofenceData, GeofencePolygon } from "@/types";
+import type { GeofenceData, GeofencePolygon, LatLngCoord } from "@/types";
 import { useCallback, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -12,7 +12,7 @@ export const useGeofenceStore = () => {
     setDrawingEnabled(true);
   }, []);
 
-  const completeDrawing = useCallback((path: { lat: number; lng: number }[]) => {
+  const completeDrawing = useCallback((path: LatLngCoord[]) => {
     if (!activeForm) return;
     const id = uuidv4();
     const newGeofence: GeofencePolygon = {

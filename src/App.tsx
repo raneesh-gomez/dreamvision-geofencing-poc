@@ -1,5 +1,4 @@
 import {APIProvider, Map} from '@vis.gl/react-google-maps';
-import './App.css'
 import MapDrawing from './components/maps/MapDrawing';
 import GeofenceSidebar from './components/maps/GeofenceSidebar';
 import { useGeofenceStore } from './hooks/use-geofence-store';
@@ -27,7 +26,7 @@ function App() {
             defaultCenter={{lat: 22.54992, lng: 0}}
             defaultZoom={3}
             gestureHandling={'greedy'}
-            disableDefaultUI={true}
+            disableDefaultUI={false}
           />
           <MapDrawing 
             drawingEnabled={drawingEnabled}

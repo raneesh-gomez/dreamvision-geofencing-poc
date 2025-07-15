@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { GeofenceData } from "@/types";
+import { GeofenceTypes, type GeofenceData } from "@/types";
 
 interface GeofenceSidebarProps {
   geofences: { id: string; name: string }[];
@@ -16,7 +16,7 @@ const GeofenceSidebar = ({ geofences, onSubmit }: GeofenceSidebarProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<GeofenceData>({
     name: "",
-    type: "branch",
+    type: GeofenceTypes.BRANCH,
     priority: 0,
     parentId: null,
     metadata: {},
@@ -51,7 +51,7 @@ const GeofenceSidebar = ({ geofences, onSubmit }: GeofenceSidebarProps) => {
     setOpen(false);
     setFormData({
       name: "",
-      type: "branch",
+      type: GeofenceTypes.BRANCH,
       priority: 0,
       parentId: null,
       metadata: {},
@@ -77,10 +77,10 @@ const GeofenceSidebar = ({ geofences, onSubmit }: GeofenceSidebarProps) => {
             <Select onValueChange={(value) => handleSelectChange(value, "type")} defaultValue={formData.type}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="country">Country</SelectItem>
-                <SelectItem value="branch">Branch</SelectItem>
-                <SelectItem value="subbranch">Subbranch</SelectItem>
-                <SelectItem value="field_officer">Field Officer</SelectItem>
+                <SelectItem value={GeofenceTypes.COUNTRY}>Country</SelectItem>
+                <SelectItem value={GeofenceTypes.BRANCH}>Branch</SelectItem>
+                <SelectItem value={GeofenceTypes.SUBBRANCH}>Subbranch</SelectItem>
+                <SelectItem value={GeofenceTypes.FIELD_OFFICER}>Field Officer</SelectItem>
               </SelectContent>
             </Select>
           </div>
