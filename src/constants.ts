@@ -15,10 +15,10 @@ export const GeofenceTypeLabels: Record<GeofenceType, string> = {
 };
 
 export const GeofenceColors: Record<GeofenceType, string> = {
-  [GeofenceTypes.COUNTRY]: "#1D4ED8",      // blue
-  [GeofenceTypes.BRANCH]: "#10B981",       // green
-  [GeofenceTypes.SUBBRANCH]: "#F59E0B",    // amber
-  [GeofenceTypes.FIELD_OFFICER]: "#EF4444", // red
+  [GeofenceTypes.COUNTRY]: "#3B82F6",      // blue
+  [GeofenceTypes.BRANCH]: "#FB923C",       // orange
+  [GeofenceTypes.SUBBRANCH]: "#84CC16",    // lime
+  [GeofenceTypes.FIELD_OFFICER]: "#EC4899", // pink
 };
 
 export const RequiredParent: Record<GeofenceType, string | null> = {

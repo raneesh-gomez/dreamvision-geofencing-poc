@@ -16,22 +16,31 @@ import '@xyflow/react/dist/style.css';
 import { type GeofencePolygon } from '@/types';
 import { GeofenceColors, GeofenceTypeLabels } from '@/constants';
 
-export default function GeofenceFlow({ geofences }: { geofences: GeofencePolygon[] }) {
+interface GeofenceHierarchyProps {
+  geofences: GeofencePolygon[];
+}
+
+const GeofenceHierarchy = ({ geofences }: GeofenceHierarchyProps) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
+  /* TODO Use ELKJS for automatic layout (arrange nodes and edges into tree structure) */
   useEffect(() => {
     const nodes: Node[] = geofences.map((g, index) => ({
       id: g.id,
       data: { label: `${g.data.name} (${GeofenceTypeLabels[g.data.type]})` },
       position: { x: 100 * index, y: 100 },
-      style: { 
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
         border: `2px solid ${GeofenceColors[g.data.type]}`,
         borderRadius: 6,
         padding: 10,
         fontSize: 6,
         width: 75,
-        height: 25 
+        height: 25
       },
       sourcePosition: Position.Top,    // Edge exits from top of child
       targetPosition: Position.Bottom, // Edge enters at bottom of parent
@@ -85,4 +94,6 @@ export default function GeofenceFlow({ geofences }: { geofences: GeofencePolygon
       </ReactFlow>
     </div>
   );
-}
+};
+
+export default GeofenceHierarchy;

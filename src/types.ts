@@ -19,6 +19,15 @@ export interface GeofencePolygon {
   data: GeofenceData;
 }
 
+export interface GeofenceContextType {
+  geofences: GeofencePolygon[];
+  activeForm: GeofenceData | null;
+  drawingEnabled: boolean;
+  startDrawing: (formData: GeofenceData) => void;
+  completeDrawing: (path: { lat: number; lng: number }[]) => void;
+  updateGeofencePath: (id: string, newPath: LatLngCoord[]) => void;
+}
+
 export type {
     LatLngCoord,
     PolygonCompleteCallback,

@@ -1,37 +1,53 @@
 import { GeofenceColors } from "@/constants";
-import { type GeofenceData, type LatLngCoord, type PolygonCompleteCallback } from "@/types";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, type RefObject } from "react";
+import { useGeofenceContext } from "./use-geofence-context";
+import { getPathCoordinates } from "@/lib/map-utils";
 
-const useMapDrawingService = (drawingEnabled: boolean, activeForm: GeofenceData | null, onPolygonComplete: PolygonCompleteCallback) => {
+const useMapDrawingService = () => {
+    const { 
+        geofences, 
+        drawingEnabled, 
+        activeForm, 
+        completeDrawing, 
+        updateGeofencePath 
+    } = useGeofenceContext();
     const map = useMap();
     const mapDrawingLibrary = useMapsLibrary('drawing');
     const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(null);
-    const listenersRef = useRef<google.maps.MapsEventListener[]>([]);
-
-    // Extract polygon path and convert to coordinate array
-    const getPathCoordinates = (path: google.maps.MVCArray<google.maps.LatLng>): LatLngCoord[] => {
-        console.log("Path: ", path);
-        const coords: LatLngCoord[] = [];
-        for (let i = 0; i < path.getLength(); i++) {
-            const point = path.getAt(i);
-            coords.push({ lat: point.lat(), lng: point.lng() });
-        }
-        return coords;
-    };
+    const drawingListenersRef = useRef<google.maps.MapsEventListener[]>([]);
+    const polygonListenersRef = useRef<google.maps.MapsEventListener[]>([]);
+    const drawnPolygonsRef = useRef<google.maps.Polygon[]>([]);
 
     // Attach live-edit listeners to a polygon
-    const addPolygonChangeListeners = useCallback(
-        (polygon: google.maps.Polygon, callback: PolygonCompleteCallback) => {
+    const attachPolygonChangeListeners = useCallback(
+        (polygon: google.maps.Polygon, geofenceId: string | null) => {
             const path = polygon.getPath();
-            const update = () => callback(getPathCoordinates(path));
+            const update = () => {
+                const updatedCoords = getPathCoordinates(path);
+                if (geofenceId) {
+                    updateGeofencePath(geofenceId, updatedCoords);
+                } else {
+                    completeDrawing(updatedCoords);
+                }
+            };
 
-            listenersRef.current.push(path.addListener("set_at", update));
-            listenersRef.current.push(path.addListener("insert_at", update));
-            listenersRef.current.push(path.addListener("remove_at", update));
+            polygonListenersRef.current.push(path.addListener("set_at", update));
+            polygonListenersRef.current.push(path.addListener("insert_at", update));
+            polygonListenersRef.current.push(path.addListener("remove_at", update));
         },
-        []
+        [updateGeofencePath, completeDrawing]
     );
+
+    const clearListeners = (ref: RefObject<google.maps.MapsEventListener[]>) => {
+        ref.current.forEach((l) => google.maps.event.removeListener(l));
+        ref.current = [];
+    };
+
+    const clearPolygons = () => {
+        drawnPolygonsRef.current.forEach((polygon) => polygon.setMap(null));
+        drawnPolygonsRef.current = [];
+    };
 
     useEffect(() => {
         if (!map || !mapDrawingLibrary || drawingManagerRef.current) return;
@@ -58,8 +74,7 @@ const useMapDrawingService = (drawingEnabled: boolean, activeForm: GeofenceData 
         if (!drawingManager) return;
 
         // Clean up any old listeners
-        listenersRef.current.forEach((l) => google.maps.event.removeListener(l));
-        listenersRef.current = [];
+        clearListeners(drawingListenersRef);
 
         if (drawingEnabled) {
             const polygonColor = activeForm?.type
@@ -88,23 +103,52 @@ const useMapDrawingService = (drawingEnabled: boolean, activeForm: GeofenceData 
                     const polygon = event.overlay;
                     const coords = getPathCoordinates(polygon.getPath());
 
-                    onPolygonComplete(coords);
-                    addPolygonChangeListeners(polygon, onPolygonComplete);
+                    completeDrawing(coords);
+                    polygon.setMap(null);
                 }
             };
 
             const listener = google.maps.event.addListener(drawingManager, "overlaycomplete", onOverlayComplete);
-            listenersRef.current.push(listener);
+            drawingListenersRef.current.push(listener);
         } else {
             drawingManager.setDrawingMode(null);
         }
 
         return () => {
-            listenersRef.current.forEach((l) => google.maps.event.removeListener(l));
-            listenersRef.current = [];
+            clearListeners(drawingListenersRef);
         };
-    }, [activeForm, drawingEnabled, onPolygonComplete, addPolygonChangeListeners]);
+    }, [activeForm, drawingEnabled, completeDrawing]);
 
+    useEffect(() => {
+        if (!map) return;
+
+        // Clean up previously drawn polygons
+        clearPolygons();
+
+        // Clean up any old listeners
+        clearListeners(polygonListenersRef);
+
+        geofences.forEach((g) => {
+            const polygon = new google.maps.Polygon({
+                paths: g.path,
+                map,
+                editable: true,
+                draggable: false,
+                strokeColor: GeofenceColors[g.data.type],
+                fillColor: GeofenceColors[g.data.type],
+                fillOpacity: 0.2,
+            });
+
+            attachPolygonChangeListeners(polygon, g.id);
+            drawnPolygonsRef.current.push(polygon);
+        });
+
+        return () => {
+            clearListeners(polygonListenersRef);
+            clearPolygons();
+        };
+    }, [map, geofences, attachPolygonChangeListeners]);
+    
     return drawingManagerRef.current;
 }
 

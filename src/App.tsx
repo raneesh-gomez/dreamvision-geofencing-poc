@@ -1,25 +1,13 @@
 import {APIProvider, Map} from '@vis.gl/react-google-maps';
 import MapDrawing from './components/maps/MapDrawing';
 import GeofenceSidebar from './components/maps/GeofenceSidebar';
-import { useGeofenceStore } from './hooks/use-geofence-store';
 
 function App() {
-  const {
-    geofences,
-    activeForm,
-    drawingEnabled,
-    startDrawing,
-    completeDrawing,
-  } = useGeofenceStore();
-  
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
       <div className='flex'>
         <div className='flex-col w-1/3'>
-          <GeofenceSidebar 
-            geofences={geofences}
-            onSubmit={startDrawing}
-          />
+          <GeofenceSidebar />
         </div>
         <div className='flex-col w-2/3'>
           <Map
@@ -29,11 +17,7 @@ function App() {
             gestureHandling={'greedy'}
             disableDefaultUI={false}
           />
-          <MapDrawing 
-            drawingEnabled={drawingEnabled}
-            activeForm={activeForm}
-            onPolygonComplete={completeDrawing}
-          />
+          <MapDrawing />
         </div>
       </div>
       
