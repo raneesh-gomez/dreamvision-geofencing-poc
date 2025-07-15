@@ -1,8 +1,8 @@
-import type { LatLngCoord, PolygonCompleteCallback } from "@/types";
+import { GeofenceColors, type GeofenceData, type LatLngCoord, type PolygonCompleteCallback } from "@/types";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useRef } from "react";
 
-const useMapDrawingService = (drawingEnabled: boolean, onPolygonComplete: PolygonCompleteCallback) => {
+const useMapDrawingService = (drawingEnabled: boolean, activeForm: GeofenceData | null, onPolygonComplete: PolygonCompleteCallback) => {
     const map = useMap();
     const mapDrawingLibrary = useMapsLibrary('drawing');
     const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(null);
@@ -54,8 +54,6 @@ const useMapDrawingService = (drawingEnabled: boolean, onPolygonComplete: Polygo
 
     useEffect(() => {
         const drawingManager = drawingManagerRef.current;
-        console.log("Drawing enabled:", drawingEnabled);
-        console.log("Drawing manager:", drawingManager);
         if (!drawingManager) return;
 
         // Clean up any old listeners
@@ -63,7 +61,23 @@ const useMapDrawingService = (drawingEnabled: boolean, onPolygonComplete: Polygo
         listenersRef.current = [];
 
         if (drawingEnabled) {
-            drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+            const polygonColor = activeForm?.type
+                ? GeofenceColors[activeForm.type]
+                : "#000000";
+
+            drawingManager.setOptions({
+                drawingControl: false,
+                drawingMode: google.maps.drawing.OverlayType.POLYGON,
+                polygonOptions: {
+                    fillColor: polygonColor,
+                    strokeColor: polygonColor,
+                    fillOpacity: 0.5,
+                    strokeWeight: 2,
+                    editable: true,
+                    draggable: false,
+                    clickable: true
+                },
+            });
 
             const onOverlayComplete = (event: google.maps.drawing.OverlayCompleteEvent) => {
                 if (
@@ -88,7 +102,7 @@ const useMapDrawingService = (drawingEnabled: boolean, onPolygonComplete: Polygo
             listenersRef.current.forEach((l) => google.maps.event.removeListener(l));
             listenersRef.current = [];
         };
-    }, [drawingEnabled, onPolygonComplete, addPolygonChangeListeners]);
+    }, [activeForm, drawingEnabled, onPolygonComplete, addPolygonChangeListeners]);
 
     return drawingManagerRef.current;
 }

@@ -10,6 +10,13 @@ export const GeofenceTypes = {
 
 type GeofenceType = typeof GeofenceTypes[keyof typeof GeofenceTypes];
 
+export const GeofenceColors: Record<string, string> = {
+  country: "#1D4ED8",      // blue
+  branch: "#10B981",       // green
+  subbranch: "#F59E0B",    // amber
+  field_officer: "#EF4444", // red
+};
+
 export interface GeofenceData {
   name: string;
   type: GeofenceType;

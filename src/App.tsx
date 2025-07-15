@@ -6,6 +6,7 @@ import { useGeofenceStore } from './hooks/use-geofence-store';
 function App() {
   const {
     geofences,
+    activeForm,
     drawingEnabled,
     startDrawing,
     completeDrawing,
@@ -30,6 +31,7 @@ function App() {
           />
           <MapDrawing 
             drawingEnabled={drawingEnabled}
+            activeForm={activeForm}
             onPolygonComplete={completeDrawing}
           />
         </div>
