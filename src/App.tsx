@@ -13,7 +13,7 @@ function App() {
   } = useGeofenceStore();
   
   return (
-    <APIProvider apiKey="AIzaSyALV8ZgXOCRHB4A3zv942lFvmXugRUOd1g">
+    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
       <div className='flex'>
         <div className='flex-col w-1/6'>
           <GeofenceSidebar 

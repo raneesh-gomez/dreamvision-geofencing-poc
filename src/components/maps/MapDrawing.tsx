@@ -8,10 +8,6 @@ const MapDrawing = ({
   drawingEnabled: boolean;
   onPolygonComplete: PolygonCompleteCallback;
 }) => {
-    // const handlePolygonComplete = (coords: { lat: number; lng: number }[]) => {
-    //     console.log("Polygon drawn:", coords);
-    // };
-
     useMapDrawingService(drawingEnabled, onPolygonComplete);
 
     return null;

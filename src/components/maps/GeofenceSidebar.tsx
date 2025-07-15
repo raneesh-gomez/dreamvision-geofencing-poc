@@ -5,23 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-interface GeofenceFormValues {
-  name: string;
-  type: "country" | "branch" | "subbranch" | "field_officer";
-  priority: number;
-  parentId: string | null;
-  metadata: Record<string, string>;
-}
+import type { GeofenceData } from "@/types";
 
 interface GeofenceSidebarProps {
   geofences: { id: string; name: string }[];
-  onSubmit: (data: GeofenceFormValues) => void;
+  onSubmit: (data: GeofenceData) => void;
 }
 
 const GeofenceSidebar = ({ geofences, onSubmit }: GeofenceSidebarProps) => {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<GeofenceFormValues>({
+  const [formData, setFormData] = useState<GeofenceData>({
     name: "",
     type: "branch",
     priority: 0,

@@ -1,28 +1,13 @@
+import type { GeofenceData, GeofencePolygon } from "@/types";
 import { useCallback, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-export type GeofenceType = "country" | "branch" | "subbranch" | "field_officer";
-
-export interface GeofenceMetadata {
-  name: string;
-  type: GeofenceType;
-  priority: number;
-  parentId: string | null;
-  metadata: Record<string, string>;
-}
-
-export interface GeofencePolygon {
-  id: string;
-  path: { lat: number; lng: number }[];
-  metadata: GeofenceMetadata;
-}
-
 export const useGeofenceStore = () => {
   const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
-  const [activeForm, setActiveForm] = useState<GeofenceMetadata | null>(null);
+  const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
   const [drawingEnabled, setDrawingEnabled] = useState(false);
 
-  const startDrawing = useCallback((formData: GeofenceMetadata) => {
+  const startDrawing = useCallback((formData: GeofenceData) => {
     setActiveForm(formData);
     setDrawingEnabled(true);
   }, []);
