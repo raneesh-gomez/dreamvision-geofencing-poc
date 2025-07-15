@@ -8,10 +8,13 @@ import {
   type Edge,
   type NodeChange,
   type EdgeChange,
+  Position,
+  MarkerType
 } from '@xyflow/react';
 import { useCallback, useEffect, useState } from 'react';
 import '@xyflow/react/dist/style.css';
-import { GeofenceColors, type GeofencePolygon } from '@/types';
+import { type GeofencePolygon } from '@/types';
+import { GeofenceColors, GeofenceTypeLabels } from '@/constants';
 
 export default function GeofenceFlow({ geofences }: { geofences: GeofencePolygon[] }) {
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -20,7 +23,7 @@ export default function GeofenceFlow({ geofences }: { geofences: GeofencePolygon
   useEffect(() => {
     const nodes: Node[] = geofences.map((g, index) => ({
       id: g.id,
-      data: { label: g.data.name },
+      data: { label: `${g.data.name} (${GeofenceTypeLabels[g.data.type]})` },
       position: { x: 100 * index, y: 100 },
       style: { 
         border: `2px solid ${GeofenceColors[g.data.type]}`,
@@ -30,6 +33,8 @@ export default function GeofenceFlow({ geofences }: { geofences: GeofencePolygon
         width: 75,
         height: 25 
       },
+      sourcePosition: Position.Top,    // Edge exits from top of child
+      targetPosition: Position.Bottom, // Edge enters at bottom of parent
     }));
 
     const edges: Edge[] = geofences
@@ -43,6 +48,12 @@ export default function GeofenceFlow({ geofences }: { geofences: GeofencePolygon
         style: {
             stroke: '#374151',
             strokeDasharray: '6 3',
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 15,
+          height: 15,
+          color: '#374151',
         },
       }));
 

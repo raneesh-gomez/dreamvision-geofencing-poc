@@ -1,4 +1,5 @@
-import { GeofenceColors, type GeofenceData, type LatLngCoord, type PolygonCompleteCallback } from "@/types";
+import { GeofenceColors } from "@/constants";
+import { type GeofenceData, type LatLngCoord, type PolygonCompleteCallback } from "@/types";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useRef } from "react";
 
