@@ -1,7 +1,6 @@
 import type { GeofenceTypes } from "./constants";
 
 type LatLngCoord = { lat: number; lng: number };
-type PolygonCompleteCallback = (coordinates: LatLngCoord[]) => void;
 
 type GeofenceType = typeof GeofenceTypes[keyof typeof GeofenceTypes];
 
@@ -30,6 +29,5 @@ export interface GeofenceContextType {
 
 export type {
     LatLngCoord,
-    PolygonCompleteCallback,
     GeofenceType
 };

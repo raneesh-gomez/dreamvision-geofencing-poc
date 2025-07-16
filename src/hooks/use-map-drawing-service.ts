@@ -14,12 +14,16 @@ const useMapDrawingService = () => {
     } = useGeofenceContext();
     const map = useMap();
     const mapDrawingLibrary = useMapsLibrary('drawing');
+    
     const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(null);
     const drawingListenersRef = useRef<google.maps.MapsEventListener[]>([]);
     const polygonListenersRef = useRef<google.maps.MapsEventListener[]>([]);
     const drawnPolygonsRef = useRef<google.maps.Polygon[]>([]);
 
-    // Attach live-edit listeners to a polygon
+    /**
+     * Utility function to attach change listeners to a polygon.
+     * This allows us to update the geofence path in real-time as the polygon is edited
+     */
     const attachPolygonChangeListeners = useCallback(
         (polygon: google.maps.Polygon, geofenceId: string | null) => {
             const path = polygon.getPath();
@@ -49,6 +53,10 @@ const useMapDrawingService = () => {
         drawnPolygonsRef.current = [];
     };
 
+    /**
+     * This effect sets up the drawing manager when the map is available.
+     * It creates a new DrawingManager instance and attaches it to the map.
+     */
     useEffect(() => {
         if (!map || !mapDrawingLibrary || drawingManagerRef.current) return;
 
@@ -69,6 +77,10 @@ const useMapDrawingService = () => {
         };
     }, [map, mapDrawingLibrary]);
 
+    /**
+     * This effect manages the drawing state and updates the DrawingManager options
+     * based on the active form and drawingEnabled state.
+     */
     useEffect(() => {
         const drawingManager = drawingManagerRef.current;
         if (!drawingManager) return;
@@ -119,14 +131,17 @@ const useMapDrawingService = () => {
         };
     }, [activeForm, drawingEnabled, completeDrawing]);
 
+    /**
+     * This effect updates the map with existing geofences.
+     * It clears any previously drawn polygons and sets up new ones based on the geofences data.
+     * It also attaches change listeners to each polygon to handle live edits.
+     */
     useEffect(() => {
         if (!map) return;
 
-        // Clean up previously drawn polygons
-        clearPolygons();
-
-        // Clean up any old listeners
+        // Clean up previously drawn polygons and old listeners
         clearListeners(polygonListenersRef);
+        clearPolygons();
 
         geofences.forEach((g) => {
             const polygon = new google.maps.Polygon({
@@ -148,7 +163,7 @@ const useMapDrawingService = () => {
             clearPolygons();
         };
     }, [map, geofences, attachPolygonChangeListeners]);
-    
+
     return drawingManagerRef.current;
 }
 

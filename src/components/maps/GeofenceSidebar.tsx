@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { type GeofenceData } from "@/types";
 import { Separator } from "../ui/separator";
 import GeofenceHierarchy from "./GeofenceHierarchy";
-import { GeofenceColors, GeofenceTypes, RequiredParent } from "@/constants";
+import { GeofenceColors, GeofenceTypes, InitialGeofenceData, RequiredParent } from "@/constants";
 import { GeofenceTypeLabels } from '../../constants';
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
 
@@ -19,17 +19,15 @@ const GeofenceSidebar = () => {
         startDrawing,
     } = useGeofenceContext();
     const [open, setOpen] = useState(false);
-    const [formData, setFormData] = useState<GeofenceData>({
-        name: "",
-        type: GeofenceTypes.BRANCH,
-        priority: 0,
-        parentId: null,
-        metadata: {},
-    });
+    const [formData, setFormData] = useState<GeofenceData>(InitialGeofenceData);
     const [metaKey, setMetaKey] = useState("");
     const [metaValue, setMetaValue] = useState("");
     const [error, setError] = useState<string | null>(null);
 
+    /**
+     * Determines the valid parent geofences based on the selected type.
+     * This is used to filter the available parent geofences in the dropdown.
+     */
     const allowedParentType = RequiredParent[formData.type];
     const validParentGeofences = allowedParentType
         ? geofences.filter((g) => g.data.type === allowedParentType)
@@ -41,38 +39,32 @@ const GeofenceSidebar = () => {
 
     const handleSelectChange = (value: string, name: string) => {
         setFormData(prev => ({
-        ...prev,
-        [name]: value === "none" ? null : value,
+            ...prev,
+            [name]: value === "none" ? null : value,
         }));
     };
 
     const addMetadata = () => {
         if (metaKey && metaValue) {
-        setFormData(prev => ({
-            ...prev,
-            metadata: { ...prev.metadata, [metaKey]: metaValue }
-        }));
-        setMetaKey("");
-        setMetaValue("");
+            setFormData(prev => ({
+                ...prev,
+                metadata: { ...prev.metadata, [metaKey]: metaValue }
+            }));
+            setMetaKey("");
+            setMetaValue("");
         }
     };
 
     const handleSubmit = () => {
         if (formData.type !== GeofenceTypes.COUNTRY && !formData.parentId) {
-        setError("Please select a parent geofence.");
-        return;
+            setError("Please select a parent geofence.");
+            return;
         }
 
         setError(null);
         startDrawing(formData);
         setOpen(false);
-        setFormData({
-        name: "",
-        type: GeofenceTypes.BRANCH,
-        priority: 0,
-        parentId: null,
-        metadata: {},
-        });
+        setFormData(InitialGeofenceData);
     };
 
     return (
