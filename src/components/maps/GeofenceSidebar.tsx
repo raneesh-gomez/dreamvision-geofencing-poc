@@ -6,11 +6,27 @@ import { GeofenceTypeLabels } from '../../constants';
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
 import GeofenceCreateDialog from "./GeofenceCreateDialog";
 import GeofenceEditDialog from "./GeofenceEditDialog";
+import { convertGeofencesToGeoJSON } from "@/lib/geofence-utils/geojson-utils";
+import { Button } from "../ui/button";
+import { Download } from "lucide-react";
 
 const GeofenceSidebar = () => {
     const {
         geofences,
     } = useGeofenceContext();
+
+    const handleExport = () => {
+        const geojson = convertGeofencesToGeoJSON(geofences);
+        const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'geofences.geojson';
+        link.click();
+
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div className="flex flex-col p-4 h-screen w-full border-r border-gray-200 bg-white shadow-sm overflow-y-auto">
@@ -24,7 +40,18 @@ const GeofenceSidebar = () => {
             <GeofenceCreateDialog />
 
             <div className="mt-6 px-2">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">🗺️ Existing Geofences</h3>
+                <div className="flex justify-between items-center mb-2 px-2">
+                    <h3 className="text-sm font-medium text-gray-700">🗺️ Existing Geofences</h3>
+                    <Button
+                        disabled={geofences.length <= 0}
+                        onClick={handleExport}
+                        variant="outline"
+                        className="text-xs px-3 py-1 flex items-center gap-1"
+                    >
+                        <Download className="w-3 h-3" />
+                        Export
+                    </Button>
+                </div>
                 <ScrollArea className="h-75 border rounded p-2">
                     <ul className="space-y-1 text-sm text-gray-700">
                         {geofences.map((g) => (
