@@ -61,7 +61,7 @@ const useMapDrawingService = () => {
         if (!map || !mapDrawingLibrary || drawingManagerRef.current) return;
 
         const manager = new mapDrawingLibrary.DrawingManager({
-            drawingControl: false, // Hide default UI control
+            drawingControl: false,
             polygonOptions: {
                 editable: true,
                 draggable: false,

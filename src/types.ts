@@ -23,8 +23,10 @@ export interface GeofenceContextType {
   activeForm: GeofenceData | null;
   drawingEnabled: boolean;
   startDrawing: (formData: GeofenceData) => void;
-  completeDrawing: (path: { lat: number; lng: number }[]) => void;
+  completeDrawing: (path: LatLngCoord[]) => void;
   updateGeofencePath: (id: string, newPath: LatLngCoord[]) => void;
+  updateGeofence: (id: string, updatedData: GeofenceData) => void;
+  deleteGeofence: (id: string) => void;
 }
 
 export type {

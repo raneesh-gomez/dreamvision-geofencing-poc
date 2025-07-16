@@ -50,6 +50,26 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
   };
 
+  const updateGeofence = (id: string, updatedData: GeofenceData) => {
+    setGeofences(prev =>
+      prev.map(g =>
+        g.id === id ? { ...g, data: { ...updatedData } } : g
+      )
+    );
+  };
+
+  const deleteGeofence = useCallback((id: string) => {
+    const collectAllChildren = (targetId: string): string[] => {
+      const directChildren = geofences.filter(g => g.data.parentId === targetId);
+      const nestedChildren = directChildren.flatMap(child => collectAllChildren(child.id));
+      return [targetId, ...nestedChildren];
+    };
+
+    const idsToDelete = collectAllChildren(id);
+
+    setGeofences((prev) => prev.filter((g) => !idsToDelete.includes(g.id)));
+  }, [geofences]);
+
   return (
     <GeofenceContext.Provider value={{ 
         geofences, 
@@ -57,7 +77,9 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         drawingEnabled, 
         startDrawing, 
         completeDrawing,
-        updateGeofencePath 
+        updateGeofencePath,
+        updateGeofence,
+        deleteGeofence
       }}
     >
       {children}
