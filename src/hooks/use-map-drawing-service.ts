@@ -8,7 +8,9 @@ const useMapDrawingService = () => {
     const { 
         geofences, 
         drawingEnabled, 
-        activeForm, 
+        activeForm,
+        effectiveAreas,
+        showEffectiveAreas,
         completeDrawing, 
         updateGeofencePath 
     } = useGeofenceContext();
@@ -19,6 +21,7 @@ const useMapDrawingService = () => {
     const drawingListenersRef = useRef<google.maps.MapsEventListener[]>([]);
     const polygonListenersRef = useRef<google.maps.MapsEventListener[]>([]);
     const drawnPolygonsRef = useRef<google.maps.Polygon[]>([]);
+    const effectiveAreaPolygonsRef = useRef<google.maps.Polygon[]>([]);
 
     /**
      * Utility function to attach change listeners to a polygon.
@@ -48,9 +51,9 @@ const useMapDrawingService = () => {
         ref.current = [];
     };
 
-    const clearPolygons = () => {
-        drawnPolygonsRef.current.forEach((polygon) => polygon.setMap(null));
-        drawnPolygonsRef.current = [];
+    const clearPolygons = (ref: RefObject<google.maps.Polygon[]>) => {
+        ref.current.forEach((polygon) => polygon.setMap(null));
+        ref.current = [];
     };
 
     /**
@@ -141,7 +144,7 @@ const useMapDrawingService = () => {
 
         // Clean up previously drawn polygons and old listeners
         clearListeners(polygonListenersRef);
-        clearPolygons();
+        clearPolygons(drawnPolygonsRef);
 
         geofences.forEach((g) => {
             const polygon = new google.maps.Polygon({
@@ -160,9 +163,40 @@ const useMapDrawingService = () => {
 
         return () => {
             clearListeners(polygonListenersRef);
-            clearPolygons();
+            clearPolygons(drawnPolygonsRef);
         };
     }, [map, geofences, attachPolygonChangeListeners]);
+
+    useEffect(() => {
+        if (!map || !showEffectiveAreas) return;
+
+        // Clear previous effective area polygons
+        clearPolygons(effectiveAreaPolygonsRef);
+
+        effectiveAreas.features.forEach((feature) => {
+            if (feature.geometry.type === "Polygon") {
+                const coords = feature.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
+
+                const polygon = new google.maps.Polygon({
+                    paths: coords,
+                    map,
+                    strokeColor: "#8B5CF6",
+                    fillColor: "#8B5CF6",
+                    fillOpacity: 0.8,
+                    strokeOpacity: 0.2,
+                    strokeWeight: 1,
+                    clickable: false,
+                    zIndex: 1,
+                });
+
+                effectiveAreaPolygonsRef.current.push(polygon);
+            }
+        });
+
+        return () => {
+            clearPolygons(effectiveAreaPolygonsRef);
+        };
+    }, [map, effectiveAreas, showEffectiveAreas]);
 
     return drawingManagerRef.current;
 }

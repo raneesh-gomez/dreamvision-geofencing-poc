@@ -1,3 +1,4 @@
+import type { FeatureCollection, Polygon, MultiPolygon } from "geojson";
 import type { GeofenceTypes } from "./constants";
 
 type LatLngCoord = { lat: number; lng: number };
@@ -22,6 +23,10 @@ export interface GeofenceContextType {
   geofences: GeofencePolygon[];
   activeForm: GeofenceData | null;
   drawingEnabled: boolean;
+  effectiveAreas: FeatureCollection<Polygon | MultiPolygon>;
+  showEffectiveAreas: boolean;
+  setShowEffectiveAreas: React.Dispatch<React.SetStateAction<boolean>>;
+  setEffectiveAreas: React.Dispatch<React.SetStateAction<FeatureCollection<Polygon | MultiPolygon>>>;
   startDrawing: (formData: GeofenceData) => void;
   completeDrawing: (path: LatLngCoord[]) => void;
   updateGeofencePath: (id: string, newPath: LatLngCoord[]) => void;

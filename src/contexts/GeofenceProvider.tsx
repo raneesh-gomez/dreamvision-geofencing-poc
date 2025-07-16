@@ -2,15 +2,24 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { GeofenceContext } from './GeofenceContext';
 import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
-import { validateContainment } from '@/lib/geofence-utils/validate-containment';
+import { computeEffectiveAreas, validateContainment } from '@/lib/geofence-utils/turf-utils';
 import { toast } from 'sonner';
+import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
 export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
   const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
   const [drawingEnabled, setDrawingEnabled] = useState(false);
+  const [showEffectiveAreas, setShowEffectiveAreas] = useState(true);
+  const [effectiveAreas, setEffectiveAreas] = useState<FeatureCollection<Polygon | MultiPolygon>>({
+    type: 'FeatureCollection',
+    features: [],
+  });
 
   useEffect(() => {
+    const fc = computeEffectiveAreas(geofences);
+    setEffectiveAreas(fc);
+
     console.log("Geofences updated:", geofences);
   }, [geofences]);
 
@@ -97,7 +106,11 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     <GeofenceContext.Provider value={{ 
         geofences, 
         activeForm, 
-        drawingEnabled, 
+        drawingEnabled,
+        effectiveAreas,
+        showEffectiveAreas,
+        setShowEffectiveAreas,
+        setEffectiveAreas,
         startDrawing, 
         completeDrawing,
         updateGeofencePath,
