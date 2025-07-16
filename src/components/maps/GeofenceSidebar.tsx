@@ -41,7 +41,7 @@ const GeofenceSidebar = () => {
 
             <div className="mt-6 px-2">
                 <div className="flex justify-between items-center mb-2 px-2">
-                    <h3 className="text-sm font-medium text-gray-700">🗺️ Existing Geofences</h3>
+                    <h3 className="text-sm font-medium text-gray-700">🗺️ Geofences</h3>
                     <Button
                         disabled={geofences.length <= 0}
                         onClick={handleExport}
@@ -80,7 +80,7 @@ const GeofenceSidebar = () => {
             </div>
 
             <div className="mt-6 px-2">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">🏢 Organization Hierarchy</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">🏢 Organizational Hierarchy</h3>
                 <GeofenceHierarchy geofences={geofences} />
             </div>
 
