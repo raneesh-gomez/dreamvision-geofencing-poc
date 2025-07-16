@@ -9,6 +9,7 @@ import { GeofenceTypeLabels, GeofenceTypes, InitialGeofenceData, RequiredParent 
 import { useState } from "react";
 import type { GeofenceData } from "@/types";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
+import { validateStructure } from "@/lib/geofence-utils/validate-structure";
 
 const GeofenceCreateDialog = () => {
     const {
@@ -53,8 +54,9 @@ const GeofenceCreateDialog = () => {
     };
 
     const handleSubmit = () => {
-        if (formData.type !== GeofenceTypes.COUNTRY && !formData.parentId) {
-            setError("Please select a parent geofence.");
+        const structureError = validateStructure(formData, geofences);
+        if (structureError) {
+            setError(structureError);
             return;
         }
 

@@ -2,7 +2,7 @@ import { GeofenceColors } from "@/constants";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useRef, type RefObject } from "react";
 import { useGeofenceContext } from "./use-geofence-context";
-import { getPathCoordinates } from "@/lib/map-utils";
+import { getPathCoordinates } from "@/lib/geofence-utils/map-utils";
 
 const useMapDrawingService = () => {
     const { 

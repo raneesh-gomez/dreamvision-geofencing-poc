@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Pencil, Trash } from "lucide-react";
 import type { GeofenceData, GeofencePolygon } from "@/types";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
+import { validateStructure } from "@/lib/geofence-utils/validate-structure";
 
 const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
     const {
@@ -66,8 +67,9 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
     };
 
     const handleSubmit = () => {
-        if (formData.type !== GeofenceTypes.COUNTRY && !formData.parentId) {
-            setError("Please select a parent geofence.");
+        const structureError = validateStructure(formData, geofences);
+        if (structureError) {
+            setError(structureError);
             return;
         }
 
