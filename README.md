@@ -4,21 +4,49 @@ A modern web portal for visualizing and managing **geofences** across microfinan
 
 ## 🚀 Features
 
-- 🔒 Form-driven geofence creation (name, type, priority, parent, metadata)
-- 🖍️ Google Maps polygon drawing, editable in real-time
-- 🧠 Dynamic key-value metadata fields
-- 🧭 Parent-child hierarchy support for geofences
-- 🎨 Tailwind + ShadCN UI for enterprise-grade design
-- ⚙️ TypeScript-first codebase
+### 🖍️ Geofence Creation & Drawing
+
+- Form-driven creation
+- Map-based polygon drawing with live edit support
+- Dynamic metadata assignment with key-value pairs
+
+### 🧭 Geofence Hierarchy Validation
+
+- Enforces valid parent-child relationships
+- Validates containment (child must lie entirely within parent)
+- Validates structural rules (e.g.: Branch must be inside Country, Sub-branch must be inside Branch etc.)
+
+### 🎯 Effective Area Calculation (Advanced Turf.js Logic)
+
+- Detects polygon overlaps within the same geofence level
+- Computes visible effective area using priority values
+- Visualizes non-overlapping dominant polygons
+- Toggle-able effective area overlay
+
+### 🧷 Snap-to-Country Feature
+
+- Automatically draws country geofences to match official boundaries
+- Supports country selection via dropdown
+- Uses **GeoBoundaries API** to fetch official ADM0 country borders
+- MultiPolygon support with auto-splitting into uniquely named geofences
+
+### 📤 Export Functionality
+
+- Export all geofences as **GeoJSON** for map compatibility and integration
+
+### 💅 Elegant UI/UX
+
+- Built with [ShadCN UI](https://ui.shadcn.com) and TailwindCSS
 
 ## 🛠️ Tech Stack
 
-| Layer        | Tools Used                             |
-|--------------|-----------------------------------------|
-| Frontend     | React + Vite                            |
-| Mapping      | `@vis.gl/react-google-maps`, Google Maps API |
-| UI Framework | TailwindCSS + [shadcn/ui](https://ui.shadcn.com) |
-| Language     | TypeScript                              |
+| Layer         | Tools Used                                  |
+|---------------|----------------------------------------------|
+| Frontend      | React + Vite                                 |
+| Mapping       | `@vis.gl/react-google-maps`, Google Maps API |
+| UI Framework  | TailwindCSS + [ShadCN UI](https://ui.shadcn.com) |
+| Geometry Utils| Turf.js                                       |
+| Language      | TypeScript                                   |
 
 ## 📦 Installation
 
