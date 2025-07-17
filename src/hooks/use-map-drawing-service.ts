@@ -3,6 +3,7 @@ import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useRef, type RefObject } from "react";
 import { useGeofenceContext } from "./use-geofence-context";
 import { getPathCoordinates } from "@/lib/geofence-utils/map-utils";
+import type { GeofencePolygon } from "@/types";
 
 const useMapDrawingService = () => {
     const { 
@@ -11,6 +12,7 @@ const useMapDrawingService = () => {
         activeForm,
         effectiveAreas,
         showEffectiveAreas,
+        setFocusedGeofence,
         completeDrawing, 
         updateGeofencePath 
     } = useGeofenceContext();
@@ -45,6 +47,15 @@ const useMapDrawingService = () => {
         },
         [updateGeofencePath, completeDrawing]
     );
+
+    const attachPolygonClickListener = useCallback(
+        (polygon: google.maps.Polygon, geofence: GeofencePolygon) => {
+            const handleClick = () => {
+                setFocusedGeofence(geofence);
+            };
+
+            polygonListenersRef.current.push(google.maps.event.addListener(polygon, "click", handleClick));
+    }, [setFocusedGeofence]);
 
     const clearListeners = (ref: RefObject<google.maps.MapsEventListener[]>) => {
         ref.current.forEach((l) => google.maps.event.removeListener(l));
@@ -158,6 +169,7 @@ const useMapDrawingService = () => {
             });
 
             attachPolygonChangeListeners(polygon, g.id);
+            attachPolygonClickListener(polygon, g);
             drawnPolygonsRef.current.push(polygon);
         });
 
@@ -165,7 +177,7 @@ const useMapDrawingService = () => {
             clearListeners(polygonListenersRef);
             clearPolygons(drawnPolygonsRef);
         };
-    }, [map, geofences, attachPolygonChangeListeners]);
+    }, [map, geofences, attachPolygonChangeListeners, attachPolygonClickListener]);
 
     useEffect(() => {
         if (!map || !showEffectiveAreas) return;

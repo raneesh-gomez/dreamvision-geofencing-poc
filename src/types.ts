@@ -26,6 +26,8 @@ export interface GeofenceContextType {
   drawingEnabled: boolean;
   effectiveAreas: FeatureCollection<Polygon | MultiPolygon>;
   showEffectiveAreas: boolean;
+  focusedGeofence: GeofencePolygon | null;
+  setFocusedGeofence: React.Dispatch<React.SetStateAction<GeofencePolygon | null>>;
   setShowEffectiveAreas: React.Dispatch<React.SetStateAction<boolean>>;
   setEffectiveAreas: React.Dispatch<React.SetStateAction<FeatureCollection<Polygon | MultiPolygon>>>;
   startDrawing: (formData: GeofenceData) => void;

@@ -10,6 +10,7 @@ import { convertGeofencesToGeoJSON } from "@/lib/geofence-utils/geojson-utils";
 import { Button } from "../ui/button";
 import { Download } from "lucide-react";
 import { Switch } from "../ui/switch";
+import GeofenceOnFocus from "./GeofenceOnFocus";
 
 const GeofenceSidebar = () => {
     const {
@@ -80,6 +81,11 @@ const GeofenceSidebar = () => {
                         ))}
                     </ul>
                 </ScrollArea>
+            </div>
+
+            <div className="mt-6 px-2">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">📍 Focused Geofence</h3>
+                <GeofenceOnFocus />
             </div>
 
             <div className="mt-6 px-2">

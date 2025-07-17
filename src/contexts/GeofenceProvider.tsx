@@ -15,6 +15,7 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     type: 'FeatureCollection',
     features: [],
   });
+  const [focusedGeofence, setFocusedGeofence] = useState<GeofencePolygon | null>(null);
 
   /**
    * Starts the drawing process by setting the active form data.
@@ -106,6 +107,8 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         drawingEnabled,
         effectiveAreas,
         showEffectiveAreas,
+        focusedGeofence,
+        setFocusedGeofence,
         setShowEffectiveAreas,
         setEffectiveAreas,
         startDrawing, 
