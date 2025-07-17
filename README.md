@@ -1,6 +1,6 @@
 # 🌍 DreamVision Geofencing Portal
 
-A modern web portal for visualizing and managing **geofences** across microfinance institution (MFI) hierarchies. Built with React, Vite, Google Maps API, and Tailwind CSS (ShadCN UI), this platform enables structured creation, drawing, and metadata association of polygon-based geofences.
+A powerful, interactive web portal for visualizing and managing **geofences** across hierarchical structures in microfinance institutions (MFIs). Built with **React**, **Vite**, **Google Maps API**, and **ShadCN UI**, it empowers teams to structure, draw, validate, and export geospatial data across country, branch, sub-branch, and field officer levels.
 
 ## 🚀 Features
 
