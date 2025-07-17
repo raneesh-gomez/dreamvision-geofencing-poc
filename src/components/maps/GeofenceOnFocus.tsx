@@ -4,9 +4,7 @@ import { GeofenceTypeLabels } from '../../constants';
 const GeofenceOnFocus = () => {
   const { focusedGeofence, geofences } = useGeofenceContext();
 
-  if (!focusedGeofence) return null;
-
-  const parentName = geofences.find(g => g.id === focusedGeofence.data.parentId)?.data.name || "N/A";
+  const parentName = geofences.find(g => g.id === focusedGeofence?.data.parentId)?.data.name || "N/A";
 
   return (
     <div className="mt-4 border rounded bg-white p-4 shadow-sm">
@@ -20,7 +18,7 @@ const GeofenceOnFocus = () => {
                     <p><strong>Country Code:</strong> {focusedGeofence.data.countryISO}</p>
                 )}
             </>
-        ): (<></>)}
+        ): (<p><small>Click on a geofence on the map to view more information on it.</small></p>)}
     </div>
   );
 };
