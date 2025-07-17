@@ -80,7 +80,7 @@ const GeofenceHierarchy = ({ geofences }: GeofenceHierarchyProps) => {
   );
 
   return (
-    <div className='mt-4 border rounded bg-white' style={{ width: '100%', height: 600 }}>
+    <div className='mt-4 border rounded bg-white shadow-sm' style={{ width: '100%', height: 600 }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}

@@ -56,7 +56,7 @@ const GeofenceSidebar = () => {
                         Export
                     </Button>
                 </div>
-                <ScrollArea className="h-75 border rounded p-2">
+                <ScrollArea className="h-75 border rounded p-2 shadow-sm">
                     <ul className="space-y-1 text-sm text-gray-700">
                         {geofences.map((g) => (
                             <div
