@@ -179,6 +179,10 @@ const useMapDrawingService = () => {
         };
     }, [map, geofences, attachPolygonChangeListeners, attachPolygonClickListener]);
 
+    /**
+     * This effect handles the display of effective areas on the map.
+     * It clears any previously displayed effective area polygons and adds new ones based on the effectiveAreas state.
+     */
     useEffect(() => {
         if (!map || !showEffectiveAreas) return;
 
