@@ -77,3 +77,7 @@ Then open [http://localhost:5173](http://localhost:5173) in your browser.
 ## 🧑‍💻 Contributing
 
 Pull requests are welcome! For major changes, please open an issue to discuss your ideas first.
+
+## License
+
+MIT
