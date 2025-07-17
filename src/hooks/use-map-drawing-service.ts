@@ -1,14 +1,18 @@
-import { GeofenceColors } from "@/constants";
+import { GeofenceColors, GeofenceTypes } from "@/constants";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useRef, type RefObject } from "react";
 import { useGeofenceContext } from "./use-geofence-context";
 import { getPathCoordinates } from "@/lib/geofence-utils/map-utils";
+import type { GeofencePolygon } from "@/types";
 
 const useMapDrawingService = () => {
     const { 
         geofences, 
         drawingEnabled, 
-        activeForm, 
+        activeForm,
+        effectiveAreas,
+        showEffectiveAreas,
+        setFocusedGeofence,
         completeDrawing, 
         updateGeofencePath 
     } = useGeofenceContext();
@@ -19,6 +23,7 @@ const useMapDrawingService = () => {
     const drawingListenersRef = useRef<google.maps.MapsEventListener[]>([]);
     const polygonListenersRef = useRef<google.maps.MapsEventListener[]>([]);
     const drawnPolygonsRef = useRef<google.maps.Polygon[]>([]);
+    const effectiveAreaPolygonsRef = useRef<google.maps.Polygon[]>([]);
 
     /**
      * Utility function to attach change listeners to a polygon.
@@ -43,14 +48,23 @@ const useMapDrawingService = () => {
         [updateGeofencePath, completeDrawing]
     );
 
+    const attachPolygonClickListener = useCallback(
+        (polygon: google.maps.Polygon, geofence: GeofencePolygon) => {
+            const handleClick = () => {
+                setFocusedGeofence(geofence);
+            };
+
+            polygonListenersRef.current.push(google.maps.event.addListener(polygon, "click", handleClick));
+    }, [setFocusedGeofence]);
+
     const clearListeners = (ref: RefObject<google.maps.MapsEventListener[]>) => {
         ref.current.forEach((l) => google.maps.event.removeListener(l));
         ref.current = [];
     };
 
-    const clearPolygons = () => {
-        drawnPolygonsRef.current.forEach((polygon) => polygon.setMap(null));
-        drawnPolygonsRef.current = [];
+    const clearPolygons = (ref: RefObject<google.maps.Polygon[]>) => {
+        ref.current.forEach((polygon) => polygon.setMap(null));
+        ref.current = [];
     };
 
     /**
@@ -141,28 +155,60 @@ const useMapDrawingService = () => {
 
         // Clean up previously drawn polygons and old listeners
         clearListeners(polygonListenersRef);
-        clearPolygons();
+        clearPolygons(drawnPolygonsRef);
 
         geofences.forEach((g) => {
             const polygon = new google.maps.Polygon({
                 paths: g.path,
                 map,
-                editable: true,
-                draggable: false,
+                editable: g.data.type !== GeofenceTypes.COUNTRY,
+                draggable: g.data.type !== GeofenceTypes.COUNTRY,
                 strokeColor: GeofenceColors[g.data.type],
                 fillColor: GeofenceColors[g.data.type],
                 fillOpacity: 0.2,
             });
 
             attachPolygonChangeListeners(polygon, g.id);
+            attachPolygonClickListener(polygon, g);
             drawnPolygonsRef.current.push(polygon);
         });
 
         return () => {
             clearListeners(polygonListenersRef);
-            clearPolygons();
+            clearPolygons(drawnPolygonsRef);
         };
-    }, [map, geofences, attachPolygonChangeListeners]);
+    }, [map, geofences, attachPolygonChangeListeners, attachPolygonClickListener]);
+
+    useEffect(() => {
+        if (!map || !showEffectiveAreas) return;
+
+        // Clear previous effective area polygons
+        clearPolygons(effectiveAreaPolygonsRef);
+
+        effectiveAreas.features.forEach((feature) => {
+            if (feature.geometry.type === "Polygon") {
+                const coords = feature.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
+
+                const polygon = new google.maps.Polygon({
+                    paths: coords,
+                    map,
+                    strokeColor: "#000000",
+                    fillColor: "#8B5CF6",
+                    fillOpacity: 0.8,
+                    strokeOpacity: 1,
+                    strokeWeight: 4,
+                    clickable: false,
+                    zIndex: 1,
+                });
+
+                effectiveAreaPolygonsRef.current.push(polygon);
+            }
+        });
+
+        return () => {
+            clearPolygons(effectiveAreaPolygonsRef);
+        };
+    }, [map, effectiveAreas, showEffectiveAreas]);
 
     return drawingManagerRef.current;
 }

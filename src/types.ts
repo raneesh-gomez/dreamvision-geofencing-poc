@@ -1,3 +1,4 @@
+import type { FeatureCollection, Polygon, MultiPolygon } from "geojson";
 import type { GeofenceTypes } from "./constants";
 
 type LatLngCoord = { lat: number; lng: number };
@@ -10,6 +11,7 @@ export interface GeofenceData {
   priority: number;
   parentId: string | null;
   metadata: Record<string, string>;
+  countryISO?: string;
 }
 
 export interface GeofencePolygon {
@@ -22,8 +24,14 @@ export interface GeofenceContextType {
   geofences: GeofencePolygon[];
   activeForm: GeofenceData | null;
   drawingEnabled: boolean;
+  effectiveAreas: FeatureCollection<Polygon | MultiPolygon>;
+  showEffectiveAreas: boolean;
+  focusedGeofence: GeofencePolygon | null;
+  setFocusedGeofence: React.Dispatch<React.SetStateAction<GeofencePolygon | null>>;
+  setShowEffectiveAreas: React.Dispatch<React.SetStateAction<boolean>>;
+  setEffectiveAreas: React.Dispatch<React.SetStateAction<FeatureCollection<Polygon | MultiPolygon>>>;
   startDrawing: (formData: GeofenceData) => void;
-  completeDrawing: (path: LatLngCoord[]) => void;
+  completeDrawing: (path: LatLngCoord[], formData?: GeofenceData) => void;
   updateGeofencePath: (id: string, newPath: LatLngCoord[]) => void;
   updateGeofence: (id: string, updatedData: GeofenceData) => void;
   deleteGeofence: (id: string) => void;

@@ -9,10 +9,14 @@ import GeofenceEditDialog from "./GeofenceEditDialog";
 import { convertGeofencesToGeoJSON } from "@/lib/geofence-utils/geojson-utils";
 import { Button } from "../ui/button";
 import { Download } from "lucide-react";
+import { Switch } from "../ui/switch";
+import GeofenceOnFocus from "./GeofenceOnFocus";
 
 const GeofenceSidebar = () => {
     const {
         geofences,
+        showEffectiveAreas,
+        setShowEffectiveAreas,
     } = useGeofenceContext();
 
     const handleExport = () => {
@@ -41,7 +45,7 @@ const GeofenceSidebar = () => {
 
             <div className="mt-6 px-2">
                 <div className="flex justify-between items-center mb-2 px-2">
-                    <h3 className="text-sm font-medium text-gray-700">🗺️ Existing Geofences</h3>
+                    <h3 className="text-sm font-medium text-gray-700">🗺️ Geofences</h3>
                     <Button
                         disabled={geofences.length <= 0}
                         onClick={handleExport}
@@ -52,7 +56,7 @@ const GeofenceSidebar = () => {
                         Export
                     </Button>
                 </div>
-                <ScrollArea className="h-75 border rounded p-2">
+                <ScrollArea className="h-75 border rounded p-2 shadow-sm">
                     <ul className="space-y-1 text-sm text-gray-700">
                         {geofences.map((g) => (
                             <div
@@ -80,8 +84,21 @@ const GeofenceSidebar = () => {
             </div>
 
             <div className="mt-6 px-2">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">🏢 Organization Hierarchy</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">📍 Focused Geofence</h3>
+                <GeofenceOnFocus />
+            </div>
+
+            <div className="mt-6 px-2">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">🏢 Organizational Hierarchy</h3>
                 <GeofenceHierarchy geofences={geofences} />
+            </div>
+
+            <div className="flex items-center justify-between my-4 px-2">
+                <span className="text-sm text-gray-700">Show Effective Areas</span>
+                <Switch
+                    checked={showEffectiveAreas}
+                    onCheckedChange={setShowEffectiveAreas}
+                />
             </div>
 
             <div className="mt-auto px-2 py-3 text-xs text-center text-gray-400">
