@@ -1,4 +1,4 @@
-import { GeofenceColors } from "@/constants";
+import { GeofenceColors, GeofenceTypes } from "@/constants";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useRef, type RefObject } from "react";
 import { useGeofenceContext } from "./use-geofence-context";
@@ -150,8 +150,8 @@ const useMapDrawingService = () => {
             const polygon = new google.maps.Polygon({
                 paths: g.path,
                 map,
-                editable: true,
-                draggable: false,
+                editable: g.data.type !== GeofenceTypes.COUNTRY,
+                draggable: g.data.type !== GeofenceTypes.COUNTRY,
                 strokeColor: GeofenceColors[g.data.type],
                 fillColor: GeofenceColors[g.data.type],
                 fillOpacity: 0.2,
@@ -180,11 +180,11 @@ const useMapDrawingService = () => {
                 const polygon = new google.maps.Polygon({
                     paths: coords,
                     map,
-                    strokeColor: "#8B5CF6",
+                    strokeColor: "#000000",
                     fillColor: "#8B5CF6",
                     fillOpacity: 0.8,
-                    strokeOpacity: 0.2,
-                    strokeWeight: 1,
+                    strokeOpacity: 1,
+                    strokeWeight: 4,
                     clickable: false,
                     zIndex: 1,
                 });

@@ -11,6 +11,7 @@ export interface GeofenceData {
   priority: number;
   parentId: string | null;
   metadata: Record<string, string>;
+  countryISO?: string;
 }
 
 export interface GeofencePolygon {
@@ -28,7 +29,7 @@ export interface GeofenceContextType {
   setShowEffectiveAreas: React.Dispatch<React.SetStateAction<boolean>>;
   setEffectiveAreas: React.Dispatch<React.SetStateAction<FeatureCollection<Polygon | MultiPolygon>>>;
   startDrawing: (formData: GeofenceData) => void;
-  completeDrawing: (path: LatLngCoord[]) => void;
+  completeDrawing: (path: LatLngCoord[], formData?: GeofenceData) => void;
   updateGeofencePath: (id: string, newPath: LatLngCoord[]) => void;
   updateGeofence: (id: string, updatedData: GeofenceData) => void;
   deleteGeofence: (id: string) => void;

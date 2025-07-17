@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { GeofenceContext } from './GeofenceContext';
 import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
-import { computeEffectiveAreas, validateContainment } from '@/lib/geofence-utils/turf-utils';
+import { validateContainment } from '@/lib/geofence-utils/turf-utils';
 import { toast } from 'sonner';
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
@@ -10,18 +10,11 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
   const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
   const [drawingEnabled, setDrawingEnabled] = useState(false);
-  const [showEffectiveAreas, setShowEffectiveAreas] = useState(true);
+  const [showEffectiveAreas, setShowEffectiveAreas] = useState(false);
   const [effectiveAreas, setEffectiveAreas] = useState<FeatureCollection<Polygon | MultiPolygon>>({
     type: 'FeatureCollection',
     features: [],
   });
-
-  useEffect(() => {
-    const fc = computeEffectiveAreas(geofences);
-    setEffectiveAreas(fc);
-
-    console.log("Geofences updated:", geofences);
-  }, [geofences]);
 
   /**
    * Starts the drawing process by setting the active form data.
@@ -36,27 +29,31 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
    * Completes the drawing process by creating a new geofence polygon
    * with the provided path and active form data.
    */
-  const completeDrawing = useCallback((path: { lat: number; lng: number }[]) => {
-    if (!activeForm) return;
+  const completeDrawing = useCallback(
+    (path: LatLngCoord[], formData?: GeofenceData) => {
+      const data = formData || activeForm;
+      if (!data) return;
 
-    const parent = geofences.find((g) => g.id === activeForm.parentId);
+      const parent = geofences.find((g) => g.id === data.parentId);
 
-    const newGeofence: GeofencePolygon = {
-      id: uuidv4(),
-      path,
-      data: { ...activeForm },
-    };
+      const newGeofence: GeofencePolygon = {
+        id: uuidv4(),
+        path,
+        data: { ...data },
+      };
 
-    if (parent && !validateContainment(newGeofence, parent)) {
-      toast.error("The drawn polygon must stay completely inside its parent geofence.");
-      return;
-    }
+      if (parent && !validateContainment(newGeofence, parent)) {
+        toast.error("The drawn polygon must stay completely inside its parent geofence.");
+        return;
+      }
 
-    setGeofences(prev => [...prev, newGeofence]);
-    setDrawingEnabled(false);
-    setActiveForm(null);
-    toast.success("Geofence created successfully!");
-  }, [activeForm, geofences]);
+      setGeofences((prev) => [...prev, newGeofence]);
+      setDrawingEnabled(false);
+      setActiveForm(null);
+      toast.success("Geofence created successfully!");
+    },
+    [activeForm, geofences]
+  );
 
   /**
    * Updates the path of an existing geofence polygon.

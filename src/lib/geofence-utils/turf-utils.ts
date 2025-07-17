@@ -8,7 +8,7 @@ import groupBy from "lodash/groupBy";
 /**
  * Converts a geofence polygon path to a Turf.js polygon.
  */
-const toTurfPolygon = (path: LatLngCoord[]): Feature<Polygon> => {
+export const toTurfPolygon = (path: LatLngCoord[]): Feature<Polygon> => {
   const coordinates = path.map(({ lng, lat }) => [lng, lat]);
   
   // Ensure the polygon is closed (first and last point must match)

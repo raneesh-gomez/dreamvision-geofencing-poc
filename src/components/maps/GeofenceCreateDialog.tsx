@@ -1,4 +1,6 @@
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import area from "@turf/area";
+import { polygon as turfPolygon } from "@turf/helpers";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Label } from "../ui/label";
@@ -6,21 +8,32 @@ import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { GeofenceTypeLabels, GeofenceTypes, InitialGeofenceData, RequiredParent } from "@/constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { GeofenceData } from "@/types";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
 import { validateStructure } from "@/lib/geofence-utils/validate-structure";
+import { fetchCountryBoundary, getCountryOptions, type CountryOption } from "@/lib/geofence-utils/country-utils";
 
 const GeofenceCreateDialog = () => {
     const {
         geofences,
         startDrawing,
+        completeDrawing,
     } = useGeofenceContext();
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState<GeofenceData>(InitialGeofenceData);
     const [metaKey, setMetaKey] = useState("");
     const [metaValue, setMetaValue] = useState("");
+    const [countryOptions, setCountryOptions] = useState<CountryOption[]>([]);
+    const [selectedCountryISO, setSelectedCountryISO] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (formData.type === GeofenceTypes.COUNTRY) {
+            getCountryOptions().then(setCountryOptions);
+        }
+    }, [formData.type]);
 
     /**
      * Determines the valid parent geofences based on the selected type.
@@ -53,7 +66,7 @@ const GeofenceCreateDialog = () => {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const structureError = validateStructure(formData, geofences);
         if (structureError) {
             setError(structureError);
@@ -61,9 +74,59 @@ const GeofenceCreateDialog = () => {
         }
 
         setError(null);
-        startDrawing(formData);
+
+        if (formData.type === GeofenceTypes.COUNTRY) {
+            setLoading(true);
+
+            const geometry = await fetchCountryBoundary(selectedCountryISO);
+            if (!geometry) {
+                setError("Could not load country boundary.");
+                setLoading(false);
+                return;
+            }
+
+            if (geometry.type === "Polygon") {
+                // Single polygon with one path
+                const path = geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
+
+                completeDrawing(path, {
+                    ...formData,
+                    countryISO: selectedCountryISO,
+                });
+            } else if (geometry.type === "MultiPolygon") {
+                // Multiple polygons – each one might be an island, for example
+                const polygons = geometry.coordinates;
+
+                // Sort by area (descending) to identify the "mainland"
+                const sorted = polygons.map((coords, i) => ({
+                    coords,
+                    area: area(turfPolygon(coords)),
+                    index: i,
+                })).sort((a, b) => b.area - a.area);
+
+                // Now iterate and draw each
+                sorted.forEach((part, idx) => {
+                    const name =
+                        idx === 0 ? `${formData.name} - Mainland` : `${formData.name} - Region ${idx}`;
+
+                    const path = part.coords[0].map(([lng, lat]) => ({ lat, lng }));
+
+                    completeDrawing(path, {
+                        ...formData,
+                        name,
+                        countryISO: selectedCountryISO,
+                    });
+                });
+            }
+
+            setLoading(false);
+        } else {
+            startDrawing(formData);
+        }
+
         setOpen(false);
         setFormData(InitialGeofenceData);
+        setSelectedCountryISO("");
     };
 
     return (
@@ -95,6 +158,26 @@ const GeofenceCreateDialog = () => {
                         </SelectContent>
                         </Select>
                     </div>
+                    {formData.type === GeofenceTypes.COUNTRY && (
+                        <div className="pb-4 space-y-3">
+                            <Label>Country</Label>
+                            <Select
+                                onValueChange={(iso) => setSelectedCountryISO(iso)}
+                                value={selectedCountryISO}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Choose a country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {countryOptions.map((c) => (
+                                        <SelectItem key={c.iso} value={c.iso}>
+                                            {c.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                     <div className="pb-4 space-y-3">
                         <Label>Horizontal Priority</Label>
                         <Input
@@ -155,8 +238,18 @@ const GeofenceCreateDialog = () => {
                 
                 <Button 
                     className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer"
-                    onClick={handleSubmit}>
-                        Draw Service Area
+                    onClick={handleSubmit}
+                    disabled={loading}>
+                        {loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Creating...
+                            </>
+                        ) : (
+                            formData.type === GeofenceTypes.COUNTRY
+                                ? "Create Country Geofence"
+                                : "Draw Service Area"
+                        )}
                 </Button>
             </DialogContent>
         </Dialog>
