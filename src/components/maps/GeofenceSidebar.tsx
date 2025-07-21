@@ -35,8 +35,8 @@ const GeofenceSidebar = () => {
     return (
         <div className="flex flex-col p-4 h-screen w-full border-r border-gray-200 bg-white shadow-sm overflow-y-auto">
             <div>
-                <h2 className="text-lg font-semibold tracking-tight text-gray-800">🛰️ DreamVision Geofencing POC</h2>
-                <p className="text-sm text-gray-500">A lightweight playground to create and organize geofences</p>
+                <h2 className="text-lg font-semibold tracking-tight text-gray-800">🛰️ DreamLink Geofencing POC</h2>
+                <p className="text-sm text-gray-500">A lightweight proof-of-concept playground for the upcoming DreamLink platform.</p>
             </div>
 
             <Separator className="my-4" />
