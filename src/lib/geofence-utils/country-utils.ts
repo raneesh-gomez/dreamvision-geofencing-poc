@@ -46,8 +46,6 @@ export const fetchCountryBoundary = async (
     const geoRes = await fetch(`${corsProxy}${gjUrl}`);
     const geojson = (await geoRes.json()) as FeatureCollection;
 
-    console.log('GeoJSON for country ', iso3, ': ', geojson);
-
     const supportedGeometry = geojson.features.find((f) =>
       f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"
     );

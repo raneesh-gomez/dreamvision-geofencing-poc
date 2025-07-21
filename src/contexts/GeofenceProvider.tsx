@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { GeofenceContext } from './GeofenceContext';
 import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
-import { validateContainment } from '@/lib/geofence-utils/turf-utils';
+import { computeEffectiveAreas, validateContainment } from '@/lib/geofence-utils/turf-utils';
 import { toast } from 'sonner';
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
@@ -16,6 +16,13 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     features: [],
   });
   const [focusedGeofence, setFocusedGeofence] = useState<GeofencePolygon | null>(null);
+
+  useEffect(() => {
+    const fc = computeEffectiveAreas(geofences);
+    setEffectiveAreas(fc);
+
+    console.log("Geofences updated:", geofences);
+  }, [geofences]);
 
   /**
    * Starts the drawing process by setting the active form data.
