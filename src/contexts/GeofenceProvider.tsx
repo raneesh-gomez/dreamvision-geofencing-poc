@@ -31,7 +31,8 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       let newGeofence: GeofencePolygon = {
         id: uuidv4(),
-        path,
+        originalPath: path,
+        clippedPath: path,
         data: { ...data },
       };
 
@@ -39,8 +40,7 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const siblings = geofences.filter((g) => g.data.parentId === data.parentId && g.data.type === data.type);
 
       // ⚠️ Step 1: Validate sibling priority
-      const isConflictingSibling = hasSamePriorityOverlapWithSibling(newGeofence, siblings);
-      if (isConflictingSibling) {
+      if (hasSamePriorityOverlapWithSibling(newGeofence, siblings)) {
         toast.error("Polygons with the same priority cannot overlap. Please adjust the priority or shape.");
         return;
       }
@@ -81,11 +81,14 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         g.id !== id && g.data.parentId === target.data.parentId && g.data.type === target.data.type
       );
 
-      let updated: GeofencePolygon = { ...target, path: newPath };
+      let updated: GeofencePolygon = { 
+        ...target, 
+        originalPath: newPath, 
+        clippedPath: newPath 
+      };
 
       // ⚠️ Step 1: Validate sibling priority
-      const isConflictingSibling = hasSamePriorityOverlapWithSibling(updated, siblings);
-      if (isConflictingSibling) {
+      if (hasSamePriorityOverlapWithSibling(updated, siblings)) {
         toast.error("Polygons with the same priority cannot overlap. Please adjust the priority or shape.");
         return prev;
       }

@@ -1,4 +1,3 @@
-import booleanContains from "@turf/boolean-contains";
 import booleanIntersects from "@turf/boolean-intersects";
 import difference from "@turf/difference";
 import intersect from "@turf/intersect";
@@ -24,42 +23,17 @@ export const toTurfPolygon = (path: LatLngCoord[]): Feature<Polygon> => {
 };
 
 /**
- * Validates if the given child geofence is entirely contained within its parent.
- */
-export const validateContainment = (
-  child: GeofencePolygon,
-  parent: GeofencePolygon | undefined
-): boolean => {
-  if (!parent) return false;
-
-  const childPoly = toTurfPolygon(child.path);
-  const parentPoly = toTurfPolygon(parent.path);
-
-  return booleanContains(parentPoly, childPoly);
-};
-
-/**
  * Checks if a geofence polygon overlaps with any of its siblings that have the same priority.
  */
 export const hasSamePriorityOverlapWithSibling = (
   geofence: GeofencePolygon,
   siblings: GeofencePolygon[]
 ): boolean =>{
-  const geofencePoly = toTurfPolygon(geofence.path);
-
-  for (const sibling of siblings) {
-    const siblingPoly = toTurfPolygon(sibling.path);
-
-    const isSamePriority = sibling.data.priority === geofence.data.priority;
-    const isOverlapping = booleanIntersects(geofencePoly, siblingPoly);
-
-    if (isSamePriority && isOverlapping) {
-      return true; // Found an overlapping sibling with the same priority
-    }
-  }
-
-  return false; // No overlapping siblings found
-  
+  const geofencePoly = toTurfPolygon(geofence.originalPath);
+  return siblings.some(sibling =>
+    sibling.data.priority === geofence.data.priority &&
+    booleanIntersects(geofencePoly, toTurfPolygon(sibling.originalPath))
+  );
 }
 
 /**
@@ -69,15 +43,15 @@ export const clipToParent = (
   child: GeofencePolygon,
   parent: GeofencePolygon
 ): GeofencePolygon | null => {
-  const childPoly = toTurfPolygon(child.path);
-  const parentPoly = toTurfPolygon(parent.path);
+  const childPoly = toTurfPolygon(child.originalPath);
+  const parentPoly = toTurfPolygon(parent.clippedPath);
 
   const clipped = intersect(featureCollection([parentPoly, childPoly]));
   if (!clipped || clipped.geometry.type !== "Polygon") return null;
 
   return {
     ...child,
-    path: clipped.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }))
+    clippedPath: clipped.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }))
   };
 };
 
@@ -89,12 +63,12 @@ export const clipToHigherPrioritySiblings = (
   geofence: GeofencePolygon,
   siblings: GeofencePolygon[]
 ): GeofencePolygon => {
-  let geofencePoly = toTurfPolygon(geofence.path);
+  let geofencePoly = toTurfPolygon(geofence.clippedPath);
 
   siblings
     .filter(sibling => sibling.data.priority < geofence.data.priority)
     .forEach(higher => {
-      const higherFeature = toTurfPolygon(higher.path);
+      const higherFeature = toTurfPolygon(higher.clippedPath);
       const diff = difference(featureCollection([geofencePoly, higherFeature]));
       if (diff && diff.geometry.type === "Polygon") {
         geofencePoly = diff as Feature<Polygon, GeoJsonProperties>;
@@ -103,7 +77,7 @@ export const clipToHigherPrioritySiblings = (
 
   return {
     ...geofence,
-    path: geofencePoly.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }))
+    clippedPath: geofencePoly.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }))
   };
 };
 
@@ -114,7 +88,7 @@ export const resolveDownstreamClipping = (
   updatedGeofence: GeofencePolygon,
   allGeofences: GeofencePolygon[]
 ): GeofencePolygon[] => {
-  const updatedPoly = toTurfPolygon(updatedGeofence.path);
+  const updatedPoly = toTurfPolygon(updatedGeofence.clippedPath);
 
   return allGeofences.map((g) => {
     // Skip the updated one
@@ -122,11 +96,11 @@ export const resolveDownstreamClipping = (
 
     // ✂️ Child geofences affected by updated parent
     if (g.data.parentId === updatedGeofence.id) {
-      const clipped = intersect(featureCollection([updatedPoly, toTurfPolygon(g.path)]));
+      const clipped = intersect(featureCollection([updatedPoly, toTurfPolygon(g.originalPath)]));
       if (clipped && clipped.geometry.type === "Polygon") {
         return {
           ...g,
-          path: clipped.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })),
+          clippedPath: clipped.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })),
         };
       }
     }
@@ -137,11 +111,11 @@ export const resolveDownstreamClipping = (
       g.data.type === updatedGeofence.data.type &&
       g.data.priority > updatedGeofence.data.priority
     ) {
-      const diff = difference(featureCollection([toTurfPolygon(g.path), updatedPoly]));
+      const diff = difference(featureCollection([toTurfPolygon(g.originalPath), updatedPoly]));
       if (diff && diff.geometry.type === "Polygon") {
         return {
           ...g,
-          path: diff.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })),
+          clippedPath: diff.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })),
         };
       }
     }

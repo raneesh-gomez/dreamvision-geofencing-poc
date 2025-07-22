@@ -155,8 +155,10 @@ const useMapDrawingService = () => {
         clearPolygons(drawnPolygonsRef);
 
         geofences.forEach((g) => {
+            // Make sure that the polygons are visualized based on the `clippedPath` and not the `originalPath`
+            // This ensures that the visualized polygons respect the hierarchy and clipping rules
             const polygon = new google.maps.Polygon({
-                paths: g.path,
+                paths: g.clippedPath,
                 map,
                 editable: g.data.type !== GeofenceTypes.COUNTRY,
                 draggable: g.data.type !== GeofenceTypes.COUNTRY,

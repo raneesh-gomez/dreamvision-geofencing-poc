@@ -5,8 +5,10 @@ export const convertGeofencesToGeoJSON = (
   geofences: GeofencePolygon[]
 ): FeatureCollection => {
   const features: Feature<Polygon>[] = geofences.map((geofence) => {
+    // Make sure to use the original path for GeoJSON conversion
+    // This ensures that the GeoJSON reflects the original user input
     const coordinates = [
-      geofence.path.map((coord) => [coord.lng, coord.lat])
+      geofence.originalPath.map((coord) => [coord.lng, coord.lat])
     ];
 
     return {
