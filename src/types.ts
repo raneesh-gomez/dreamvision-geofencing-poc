@@ -29,11 +29,11 @@ export interface GeofenceContextType {
   startDrawing: (formData: GeofenceData) => void;
   completeDrawing: (path: LatLngCoord[], formData?: GeofenceData) => void;
   updateGeofencePath: (id: string, newPath: LatLngCoord[]) => void;
-  updateGeofence: (id: string, updatedData: GeofenceData) => void;
+  updateGeofenceData: (id: string, updatedData: GeofenceData) => void;
   deleteGeofence: (id: string) => void;
 }
 
 export type {
     LatLngCoord,
-    GeofenceType
+    GeofenceType,
 };
