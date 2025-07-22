@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { GeofenceContext } from './GeofenceContext';
 import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
-import { clipToHigherPrioritySiblings, clipToParent, hasSamePriorityOverlapWithSibling, resolveDownstreamClipping } from '@/lib/geofence-utils/turf-utils';
+import { clipToHigherPrioritySiblings, clipToParent, hasSamePriorityOverlapWithSibling, resolveDownstreamClippingRecursive } from '@/lib/geofence-utils/turf-utils';
 import { toast } from 'sonner';
 
 export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -109,7 +109,7 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const updatedList = prev.map((g) => (g.id === id ? updated : g));
 
       // 🔁 Step 4: Recalculate downstream geofences affected by this update
-      const resolved = resolveDownstreamClipping(updated, updatedList);
+      const resolved = resolveDownstreamClippingRecursive(updated, updatedList);
 
       toast.success("Geofence updated successfully!");
       return resolved;

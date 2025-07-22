@@ -82,44 +82,44 @@ export const clipToHigherPrioritySiblings = (
 };
 
 /**
- * Re-clips all affected child and lower-priority sibling geofences when a parent or sibling is edited.
+ * Recursively resolves clipping for downstream geofences.
+ * This ensures that all child geofences are properly clipped to their parents and siblings.
  */
-export const resolveDownstreamClipping = (
-  updatedGeofence: GeofencePolygon,
+export const resolveDownstreamClippingRecursive = (
+  updated: GeofencePolygon,
   allGeofences: GeofencePolygon[]
 ): GeofencePolygon[] => {
-  const updatedPoly = toTurfPolygon(updatedGeofence.clippedPath);
+  const updatedMap = new Map<string, GeofencePolygon>();
+  allGeofences.forEach((g) => updatedMap.set(g.id, { ...g }));
 
-  return allGeofences.map((g) => {
-    // Skip the updated one
-    if (g.id === updatedGeofence.id) return g;
+  updatedMap.set(updated.id, { ...updated });
 
-    // ✂️ Child geofences affected by updated parent
-    if (g.data.parentId === updatedGeofence.id) {
-      const clipped = intersect(featureCollection([updatedPoly, toTurfPolygon(g.originalPath)]));
-      if (clipped && clipped.geometry.type === "Polygon") {
-        return {
-          ...g,
-          clippedPath: clipped.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })),
-        };
-      }
+  const recursivelyClipChildren = (parent: GeofencePolygon) => {
+    const children = Array.from(updatedMap.values()).filter(
+      (g) => g.data.parentId === parent.id
+    );
+
+    for (const child of children) {
+      // ✂️ Step 1: Clip to new parent
+      const clippedToParent = clipToParent(child, parent);
+      if (!clippedToParent) continue;
+
+      // 🔁 Step 2: Clip to higher priority siblings
+      const siblings = Array.from(updatedMap.values()).filter(
+        (g) =>
+          g.data.parentId === clippedToParent.data.parentId &&
+          g.data.type === clippedToParent.data.type &&
+          g.id !== clippedToParent.id
+      );
+
+      const fullyClipped = clipToHigherPrioritySiblings(clippedToParent, siblings);
+      updatedMap.set(child.id, fullyClipped);
+
+      // 🧬 Step 3: Recurse into children
+      recursivelyClipChildren(fullyClipped);
     }
+  };
 
-    // ✂️ Lower-priority siblings
-    if (
-      g.data.parentId === updatedGeofence.data.parentId &&
-      g.data.type === updatedGeofence.data.type &&
-      g.data.priority > updatedGeofence.data.priority
-    ) {
-      const diff = difference(featureCollection([toTurfPolygon(g.originalPath), updatedPoly]));
-      if (diff && diff.geometry.type === "Polygon") {
-        return {
-          ...g,
-          clippedPath: diff.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })),
-        };
-      }
-    }
-
-    return g;
-  });
+  recursivelyClipChildren(updatedMap.get(updated.id)!);
+  return Array.from(updatedMap.values());
 };
