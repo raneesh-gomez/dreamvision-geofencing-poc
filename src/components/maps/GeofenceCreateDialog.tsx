@@ -178,15 +178,17 @@ const GeofenceCreateDialog = () => {
                             </Select>
                         </div>
                     )}
-                    <div className="pb-4 space-y-3">
-                        <Label>Horizontal Priority</Label>
-                        <Input
-                        type="number"
-                        name="priority"
-                        value={formData.priority}
-                        onChange={handleInputChange}
-                        />
-                    </div>
+                    {formData.type !== GeofenceTypes.COUNTRY && (
+                        <div className="pb-4 space-y-3">
+                            <Label>Horizontal Priority</Label>
+                            <Input
+                                type="number"
+                                name="priority"
+                                value={formData.priority}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                    )}
                     {formData.type !== GeofenceTypes.COUNTRY && (
                         <div className="pb-4 space-y-3">
                             <Label>Parent Geofence</Label>

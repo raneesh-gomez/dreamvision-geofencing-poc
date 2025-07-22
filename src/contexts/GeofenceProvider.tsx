@@ -1,28 +1,15 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { GeofenceContext } from './GeofenceContext';
 import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
-import { computeEffectiveAreas, validateContainment } from '@/lib/geofence-utils/turf-utils';
+import { clipToHigherPrioritySiblings, clipToParent, hasSamePriorityOverlapWithSibling, resolveDownstreamClipping } from '@/lib/geofence-utils/turf-utils';
 import { toast } from 'sonner';
-import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
 export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
   const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
   const [drawingEnabled, setDrawingEnabled] = useState(false);
-  const [showEffectiveAreas, setShowEffectiveAreas] = useState(false);
-  const [effectiveAreas, setEffectiveAreas] = useState<FeatureCollection<Polygon | MultiPolygon>>({
-    type: 'FeatureCollection',
-    features: [],
-  });
   const [focusedGeofence, setFocusedGeofence] = useState<GeofencePolygon | null>(null);
-
-  useEffect(() => {
-    const fc = computeEffectiveAreas(geofences);
-    setEffectiveAreas(fc);
-
-    console.log("Geofences updated:", geofences);
-  }, [geofences]);
 
   /**
    * Starts the drawing process by setting the active form data.
@@ -42,18 +29,35 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const data = formData || activeForm;
       if (!data) return;
 
-      const parent = geofences.find((g) => g.id === data.parentId);
-
-      const newGeofence: GeofencePolygon = {
+      let newGeofence: GeofencePolygon = {
         id: uuidv4(),
         path,
         data: { ...data },
       };
 
-      if (parent && !validateContainment(newGeofence, parent)) {
-        toast.error("The drawn polygon must stay completely inside its parent geofence.");
+      const parent = geofences.find((g) => g.id === data.parentId);
+      const siblings = geofences.filter((g) => g.data.parentId === data.parentId && g.data.type === data.type);
+
+      // ⚠️ Step 1: Validate sibling priority
+      const isConflictingSibling = hasSamePriorityOverlapWithSibling(newGeofence, siblings);
+      if (isConflictingSibling) {
+        toast.error("Polygons with the same priority cannot overlap. Please adjust the priority or shape.");
         return;
       }
+
+      // 🧱 Step 2: Clip to parent if exists
+      if (parent) {
+        // Clip the drawn polygon to fit inside the parent geofence
+        const clipped = clipToParent(newGeofence, parent);
+        if (!clipped) {
+          toast.error("The drawn polygon must be completely within its parent geofence.");
+          return;
+        }
+        newGeofence = clipped;
+      }
+
+      // 🔁 Step 3: Clip to higher-priority siblings
+      newGeofence = clipToHigherPrioritySiblings(newGeofence, siblings);
 
       setGeofences((prev) => [...prev, newGeofence]);
       setDrawingEnabled(false);
@@ -72,18 +76,40 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const target = prev.find((g) => g.id === id);
       if (!target) return prev;
 
-      const updated = { ...target, path: newPath };
       const parent = prev.find((g) => g.id === target.data.parentId);
+      const siblings = prev.filter((g) =>
+        g.id !== id && g.data.parentId === target.data.parentId && g.data.type === target.data.type
+      );
 
-      // Check if new path is still inside parent
-      if (parent && !validateContainment(updated, parent)) {
-        toast.error("The updated polygon must stay completely inside its parent geofence.");
-        return prev; // ❌ Reject update
+      let updated: GeofencePolygon = { ...target, path: newPath };
+
+      // ⚠️ Step 1: Validate sibling priority
+      const isConflictingSibling = hasSamePriorityOverlapWithSibling(updated, siblings);
+      if (isConflictingSibling) {
+        toast.error("Polygons with the same priority cannot overlap. Please adjust the priority or shape.");
+        return prev;
       }
 
-      // ✅ Accept update
+      // 🧱 Step 2: Clip to parent if exists
+      if (parent) {
+        const clipped = clipToParent(updated, parent);
+        if (!clipped) {
+          toast.error("The updated polygon must be completely within its parent geofence.");
+          return prev;
+        }
+        updated = clipped;
+      }
+
+      // 🔁 Step 3: Clip to higher-priority siblings
+      updated = clipToHigherPrioritySiblings(updated, siblings);
+
+      const updatedList = prev.map((g) => (g.id === id ? updated : g));
+
+      // 🔁 Step 4: Recalculate downstream geofences affected by this update
+      const resolved = resolveDownstreamClipping(updated, updatedList);
+
       toast.success("Geofence updated successfully!");
-      return prev.map((g) => (g.id === id ? updated : g));
+      return resolved;
     });
   };
 
@@ -112,12 +138,8 @@ export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         geofences, 
         activeForm, 
         drawingEnabled,
-        effectiveAreas,
-        showEffectiveAreas,
         focusedGeofence,
         setFocusedGeofence,
-        setShowEffectiveAreas,
-        setEffectiveAreas,
         startDrawing, 
         completeDrawing,
         updateGeofencePath,

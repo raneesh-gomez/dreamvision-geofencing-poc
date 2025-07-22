@@ -3,8 +3,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { GeofenceTypeLabels, GeofenceTypes, RequiredParent } from "@/constants";
+import { GeofenceTypeLabels } from "@/constants";
 import { useState } from "react";
 import { Pencil, Trash } from "lucide-react";
 import type { GeofenceData, GeofencePolygon } from "@/types";
@@ -25,13 +24,6 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [childrenToDelete, setChildrenToDelete] = useState<GeofencePolygon[]>([]);
 
-    const allowedParentType = RequiredParent[formData.type];
-    const validParentGeofences = allowedParentType
-        ? geofences.filter(
-            (g) => g.data.type === allowedParentType && g.id !== geofence.id
-        )
-        : [];
-
     const handleDeleteClick = () => {
         const collectChildren = (targetId: string): GeofencePolygon[] => {
             const directChildren = geofences.filter(g => g.data.parentId === targetId);
@@ -46,13 +38,6 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
-
-    const handleSelectChange = (value: string, name: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value === "none" ? null : value,
-        }));
     };
 
     const addMetadata = () => {
@@ -108,56 +93,6 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
                                 onChange={handleInputChange}
                             />
                         </div>
-                        <div className="pb-4 space-y-3">
-                            <Label>Type</Label>
-                            <Select
-                                onValueChange={(value) => {
-                                    handleSelectChange(value, "type");
-                                    setFormData((prev) => ({ ...prev, parentId: null }));
-                                }}
-                                defaultValue={formData.type}
-                            >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {Object.values(GeofenceTypes).map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                        {GeofenceTypeLabels[type]}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="pb-4 space-y-3">
-                            <Label>Horizontal Priority</Label>
-                            <Input
-                                type="number"
-                                name="priority"
-                                value={formData.priority}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        {formData.type !== GeofenceTypes.COUNTRY && (
-                            <div className="pb-4 space-y-3">
-                            <Label>Parent Geofence</Label>
-                            <Select
-                                onValueChange={(value) => handleSelectChange(value, "parentId")}
-                                defaultValue={formData.parentId || undefined}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select parent (required)" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {validParentGeofences.map((g) => (
-                                        <SelectItem key={g.id} value={g.id}>
-                                            {g.data.name} ({GeofenceTypeLabels[g.data.type]})
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            </div>
-                        )}
                         <div className="pb-4 space-y-3">
                             <Label>Metadata</Label>
                             <div className="flex gap-2">

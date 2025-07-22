@@ -1,9 +1,10 @@
 import booleanContains from "@turf/boolean-contains";
+import booleanIntersects from "@turf/boolean-intersects";
 import difference from "@turf/difference";
+import intersect from "@turf/intersect";
 import { polygon as turfPolygon, featureCollection } from "@turf/helpers";
 import type { GeofencePolygon, LatLngCoord } from "@/types";
-import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
-import groupBy from "lodash/groupBy";
+import type { Feature, GeoJsonProperties, Polygon } from "geojson";
 
 /**
  * Converts a geofence polygon path to a Turf.js polygon.
@@ -38,60 +39,113 @@ export const validateContainment = (
 };
 
 /**
- * Computes the effective areas for each geofence after resolving overlaps
- * by priority. Lower priority geofences lose overlapping areas to higher ones.
+ * Checks if a geofence polygon overlaps with any of its siblings that have the same priority.
  */
-export const computeEffectiveAreas = (
-  geofences: GeofencePolygon[]
-): FeatureCollection<Polygon | MultiPolygon> => {
-  const byType = groupBy(geofences, (g) => g.data.type);
-  const effectiveFeatures: Feature<Polygon | MultiPolygon>[] = [];
+export const hasSamePriorityOverlapWithSibling = (
+  geofence: GeofencePolygon,
+  siblings: GeofencePolygon[]
+): boolean =>{
+  const geofencePoly = toTurfPolygon(geofence.path);
 
-  for (const type in byType) {
-    const sameTypeGeofences = byType[type].sort(
-      (a, b) => a.data.priority - b.data.priority // lower number = higher priority
-    );
+  for (const sibling of siblings) {
+    const siblingPoly = toTurfPolygon(sibling.path);
 
-    const assigned: Feature<Polygon | MultiPolygon>[] = [];
+    const isSamePriority = sibling.data.priority === geofence.data.priority;
+    const isOverlapping = booleanIntersects(geofencePoly, siblingPoly);
 
-    for (const g of sameTypeGeofences) {
-      const isCountry = g.data.type === "country";
-
-      const current: Feature<Polygon> = toTurfPolygon(g.path);
-
-      // Skip non-country geofences if not contained in parent
-      if (!isCountry && g.data.parentId) {
-        const parent = geofences.find((p) => p.id === g.data.parentId);
-        if (!validateContainment(g, parent)) continue;
-      }
-
-      if (isCountry) {
-        // Do not include country in effective output
-        assigned.push(current);
-        continue;
-      }
-
-      let effective: Feature<Polygon | MultiPolygon> | null = current;
-
-      for (const higher of assigned) {
-        if (!effective) break;
-
-        const diff = difference(featureCollection([effective, higher]));
-
-        if (!diff) {
-          effective = null;
-          break;
-        }
-
-        effective = diff;
-      }
-
-      if (effective) {
-        assigned.push(effective);
-        effectiveFeatures.push(effective);
-      }
+    if (isSamePriority && isOverlapping) {
+      return true; // Found an overlapping sibling with the same priority
     }
   }
 
-  return featureCollection(effectiveFeatures);
+  return false; // No overlapping siblings found
+  
+}
+
+/**
+ * Clipping function to ensure child polygon fits inside parent.
+ */
+export const clipToParent = (
+  child: GeofencePolygon,
+  parent: GeofencePolygon
+): GeofencePolygon | null => {
+  const childPoly = toTurfPolygon(child.path);
+  const parentPoly = toTurfPolygon(parent.path);
+
+  const clipped = intersect(featureCollection([parentPoly, childPoly]));
+  if (!clipped || clipped.geometry.type !== "Polygon") return null;
+
+  return {
+    ...child,
+    path: clipped.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }))
+  };
+};
+
+/**
+ * Clips a geofence polygon to higher priority siblings.
+ * This ensures that the geofence does not overlap with any sibling geofences of higher priority.
+ */
+export const clipToHigherPrioritySiblings = (
+  geofence: GeofencePolygon,
+  siblings: GeofencePolygon[]
+): GeofencePolygon => {
+  let geofencePoly = toTurfPolygon(geofence.path);
+
+  siblings
+    .filter(sibling => sibling.data.priority < geofence.data.priority)
+    .forEach(higher => {
+      const higherFeature = toTurfPolygon(higher.path);
+      const diff = difference(featureCollection([geofencePoly, higherFeature]));
+      if (diff && diff.geometry.type === "Polygon") {
+        geofencePoly = diff as Feature<Polygon, GeoJsonProperties>;
+      }
+    });
+
+  return {
+    ...geofence,
+    path: geofencePoly.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }))
+  };
+};
+
+/**
+ * Re-clips all affected child and lower-priority sibling geofences when a parent or sibling is edited.
+ */
+export const resolveDownstreamClipping = (
+  updatedGeofence: GeofencePolygon,
+  allGeofences: GeofencePolygon[]
+): GeofencePolygon[] => {
+  const updatedPoly = toTurfPolygon(updatedGeofence.path);
+
+  return allGeofences.map((g) => {
+    // Skip the updated one
+    if (g.id === updatedGeofence.id) return g;
+
+    // ✂️ Child geofences affected by updated parent
+    if (g.data.parentId === updatedGeofence.id) {
+      const clipped = intersect(featureCollection([updatedPoly, toTurfPolygon(g.path)]));
+      if (clipped && clipped.geometry.type === "Polygon") {
+        return {
+          ...g,
+          path: clipped.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })),
+        };
+      }
+    }
+
+    // ✂️ Lower-priority siblings
+    if (
+      g.data.parentId === updatedGeofence.data.parentId &&
+      g.data.type === updatedGeofence.data.type &&
+      g.data.priority > updatedGeofence.data.priority
+    ) {
+      const diff = difference(featureCollection([toTurfPolygon(g.path), updatedPoly]));
+      if (diff && diff.geometry.type === "Polygon") {
+        return {
+          ...g,
+          path: diff.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng })),
+        };
+      }
+    }
+
+    return g;
+  });
 };

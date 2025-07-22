@@ -9,15 +9,10 @@ import GeofenceEditDialog from "./GeofenceEditDialog";
 import { convertGeofencesToGeoJSON } from "@/lib/geofence-utils/geojson-utils";
 import { Button } from "../ui/button";
 import { Download } from "lucide-react";
-import { Switch } from "../ui/switch";
 import GeofenceOnFocus from "./GeofenceOnFocus";
 
 const GeofenceSidebar = () => {
-    const {
-        geofences,
-        showEffectiveAreas,
-        setShowEffectiveAreas,
-    } = useGeofenceContext();
+    const { geofences } = useGeofenceContext();
 
     const handleExport = () => {
         const geojson = convertGeofencesToGeoJSON(geofences);
@@ -91,14 +86,6 @@ const GeofenceSidebar = () => {
             <div className="mt-6 px-2">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">🏢 Organizational Hierarchy</h3>
                 <GeofenceHierarchy geofences={geofences} />
-            </div>
-
-            <div className="flex items-center justify-between my-4 px-2">
-                <span className="text-sm text-gray-700">Show Effective Areas</span>
-                <Switch
-                    checked={showEffectiveAreas}
-                    onCheckedChange={setShowEffectiveAreas}
-                />
             </div>
 
             <div className="mt-auto px-2 py-3 text-xs text-center text-gray-400">

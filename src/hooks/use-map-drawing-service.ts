@@ -10,8 +10,6 @@ const useMapDrawingService = () => {
         geofences, 
         drawingEnabled, 
         activeForm,
-        effectiveAreas,
-        showEffectiveAreas,
         setFocusedGeofence,
         completeDrawing, 
         updateGeofencePath 
@@ -23,7 +21,6 @@ const useMapDrawingService = () => {
     const drawingListenersRef = useRef<google.maps.MapsEventListener[]>([]);
     const polygonListenersRef = useRef<google.maps.MapsEventListener[]>([]);
     const drawnPolygonsRef = useRef<google.maps.Polygon[]>([]);
-    const effectiveAreaPolygonsRef = useRef<google.maps.Polygon[]>([]);
 
     /**
      * Utility function to attach change listeners to a polygon.
@@ -178,41 +175,6 @@ const useMapDrawingService = () => {
             clearPolygons(drawnPolygonsRef);
         };
     }, [map, geofences, attachPolygonChangeListeners, attachPolygonClickListener]);
-
-    /**
-     * This effect handles the display of effective areas on the map.
-     * It clears any previously displayed effective area polygons and adds new ones based on the effectiveAreas state.
-     */
-    useEffect(() => {
-        if (!map || !showEffectiveAreas) return;
-
-        // Clear previous effective area polygons
-        clearPolygons(effectiveAreaPolygonsRef);
-
-        effectiveAreas.features.forEach((feature) => {
-            if (feature.geometry.type === "Polygon") {
-                const coords = feature.geometry.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
-
-                const polygon = new google.maps.Polygon({
-                    paths: coords,
-                    map,
-                    strokeColor: "#000000",
-                    fillColor: "#8B5CF6",
-                    fillOpacity: 0.8,
-                    strokeOpacity: 1,
-                    strokeWeight: 4,
-                    clickable: false,
-                    zIndex: 1,
-                });
-
-                effectiveAreaPolygonsRef.current.push(polygon);
-            }
-        });
-
-        return () => {
-            clearPolygons(effectiveAreaPolygonsRef);
-        };
-    }, [map, effectiveAreas, showEffectiveAreas]);
 
     return drawingManagerRef.current;
 }
