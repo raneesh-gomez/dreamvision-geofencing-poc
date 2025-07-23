@@ -1,6 +1,6 @@
 import type React from "react"
 import { useState, useEffect } from "react"
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from "./../../lib/supabase/client"
 import { Button } from "./../../components/ui/button"
 import { Input } from "./../../components/ui/input"
@@ -87,7 +87,6 @@ function LoginPage({ setIsAuthenticated }: LoginProps) {
             alert(error.message)
         } else {
             setIsAuthenticated(true)
-            alert("Logged in successfully!")
             navigate("/dashboard")
         }
         setLoading(false)
@@ -150,10 +149,10 @@ function LoginPage({ setIsAuthenticated }: LoginProps) {
             <Card className="w-full max-w-md shadow-lg rounded-2xl border border-gray-200 dark:border-gray-800">
                 <CardHeader className="space-y-1 text-center">
                     <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white">
-                        GeoFencing Portal
+                        DreamLink 1.0 Web
                     </CardTitle>
                     <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                        Login or Sign up to access the portal
+                        <strong>Login</strong> or <strong>Sign Up</strong> to access the portal
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="px-6 py-4">
@@ -203,14 +202,9 @@ function LoginPage({ setIsAuthenticated }: LoginProps) {
                                         className="flex-1"
                                     />
                                 </div>
-                                <div className="flex justify-end">
-                                    <Link to="#" className="text-sm text-blue-600 hover:underline">
-                                        Forgot password?
-                                    </Link>
-                                </div>
                                 <Button
                                     type="submit"
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
+                                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
                                     disabled={loading}
                                 >
                                     {loading ? "Logging in..." : "Login"}
@@ -336,7 +330,7 @@ function LoginPage({ setIsAuthenticated }: LoginProps) {
                                 </div>
                                 <Button
                                     type="submit"
-                                    className="w-full bg-green-600 hover:bg-green-700 text-white transition-colors duration-200"
+                                    className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white transition-colors duration-200"
                                     disabled={loading}
                                 >
                                     {loading ? "Signing up..." : "Sign Up"}

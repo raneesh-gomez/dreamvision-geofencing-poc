@@ -3,7 +3,7 @@ import type { GeofenceData, GeofenceType } from "./types";
 export const GeofenceTypes = {
   COUNTRY: "country",
   BRANCH: "branch",
-  SUBBRANCH: "subbranch",
+  SUBBRANCH: "sub_branch",
   FIELD_OFFICER: "field_officer",
 };
 
