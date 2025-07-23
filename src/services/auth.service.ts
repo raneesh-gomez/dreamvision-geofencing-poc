@@ -4,7 +4,7 @@ import type { AuthChangeEvent, AuthError, AuthResponse, AuthTokenResponsePasswor
 
 export const getSession = async () => {
     return await supabase.auth.getSession();
-}
+};
 
 export const onSignUp = async (email: string, password: string, options: SignUpOptions): Promise<AuthResponse> => {
     const { firstName, lastName, phoneNumber, ngoId, fspId } = options;
@@ -34,4 +34,4 @@ export const onLogout = async (): Promise<AuthError | null> => {
 
 export const onAuthStateChange = (callback: (event: AuthChangeEvent, session: Session | null) => void) => {
     return supabase.auth.onAuthStateChange(callback);
-}
+};

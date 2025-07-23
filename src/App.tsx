@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/login/LoginPage';
+import Login from './pages/login/Login';
 import Dashboard from './pages/dashboard/Dashboard';
 import { useAppContext } from './hooks/use-app-context';
 
@@ -10,7 +10,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={
-          <LoginPage />
+          <Login />
         } />
         <Route path="/dashboard" element={
           isAuthenticated ? (

@@ -6,7 +6,7 @@ import { GeofenceContext } from './GeofenceContext';
 import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
 import { createGeofence, updateGeofencePath as applyGeofenceUpdate } from '@/services/geofence.service';
 
-export const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
   const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
   const [drawingEnabled, setDrawingEnabled] = useState(false);

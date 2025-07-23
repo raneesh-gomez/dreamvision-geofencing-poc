@@ -1,19 +1,19 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom';
-import { Button } from "./../../components/ui/button"
-import { Input } from "./../../components/ui/input"
-import { Label } from "./../../components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./../../components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./../../components/ui/select"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./../../components/ui/card"
+import { Button } from "../../components/ui/button"
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card"
 import { useAppContext } from "@/hooks/use-app-context";
 import { getSession, onAuthStateChange, onLogin, onSignUp } from "@/services/auth.service";
 import { toast } from "sonner";
 import { getFsps, getNgos } from "@/services/lookup.service";
 import { insertRow } from "@/services/database.service";
 
-function LoginPage() {
+const Login = () => {
     const { setIsAuthenticated } = useAppContext();
     const [activeTab, setActiveTab] = useState("login")
     const [loading, setLoading] = useState(false)
@@ -328,4 +328,4 @@ function LoginPage() {
 
 }
 
-export default LoginPage;
+export default Login;

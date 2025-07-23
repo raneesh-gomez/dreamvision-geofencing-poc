@@ -12,7 +12,7 @@ import { ActiveDashboardTab } from '@/constants';
 import OrganizationalHierarchy from '@/components/organization/OrganizationalHierarchy';
 import GeofenceManager from '@/components/geofences/GeofenceManager';
 
-function Dashboard() {
+const Dashboard = () => {
     const [activeTab, setActiveTab] = useState<ActiveDashboardTabType>(ActiveDashboardTab.GEOFENCES);
     const { setIsAuthenticated } = useAppContext();
     const navigate = useNavigate();
