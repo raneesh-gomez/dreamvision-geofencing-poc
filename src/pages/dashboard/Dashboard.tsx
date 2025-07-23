@@ -1,24 +1,23 @@
 import { useNavigate } from 'react-router-dom';
-import { supabase } from "./../../lib/supabase/client"
-import { Toaster } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import GeofenceSidebar from '@/components/maps/GeofenceSidebar';
 import MapDrawing from '@/components/maps/MapDrawing';
 import { useAppContext } from '@/hooks/use-app-context';
+import { onLogout } from '@/services/auth.service';
 
 function Dashboard() {
     const { setIsAuthenticated } = useAppContext();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        const { error } = await supabase.auth.signOut();
+        const error = await onLogout();
         if (error) {
-            console.error('Logout error:', error.message);
+            toast.error('Could not log out due to an error.');
         } else {
             setIsAuthenticated(false);
             navigate('/login');
         }
-        
     };
 
     return (
@@ -37,10 +36,10 @@ function Dashboard() {
                 </div>
             </nav>
 
-            <>
-                <Toaster richColors position="top-right" />
-                <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                    <div className='flex'>
+            <Toaster richColors position="top-right" />
+                
+            <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+                <div className='flex'>
                     <div className='flex-col w-1/3'>
                         <GeofenceSidebar />
                     </div>
@@ -54,9 +53,8 @@ function Dashboard() {
                         />
                         <MapDrawing />
                     </div>
-                    </div>
-                </APIProvider>
-            </>
+                </div>
+            </APIProvider>
         </div>
     );
 }

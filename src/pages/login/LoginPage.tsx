@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./../../components/ui/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./../../components/ui/select"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./../../components/ui/card"
 import { useAppContext } from "@/hooks/use-app-context";
+import { getSession, onAuthStateChange, onLogin, onSignUp } from "@/services/auth.service";
+import { toast } from "sonner";
 
 function LoginPage() {
     const { setIsAuthenticated } = useAppContext();
@@ -58,14 +60,14 @@ function LoginPage() {
         fetchNgos()
         fetchFsps()
 
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        getSession().then(({ data: { session } }) => {
             if (session) {
                 setIsAuthenticated(true)
                 navigate("/dashboard")
             }
         })
 
-        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: authListener } = onAuthStateChange((_event, session) => {
             if (session) {
                 setIsAuthenticated(true)
                 navigate("/dashboard")
@@ -80,13 +82,15 @@ function LoginPage() {
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault()
         setLoading(true)
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        
+        const { error } = await onLogin(email, password);
         if (error) {
-            alert(error.message)
+            toast.error('The email or password you entered is incorrect.');
         } else {
             setIsAuthenticated(true)
             navigate("/dashboard")
         }
+
         setLoading(false)
     }
 
@@ -97,19 +101,13 @@ function LoginPage() {
             return
         }
         setLoading(true)
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    first_name: firstName,
-                    last_name: lastName,
-                    phone_number: phoneNumber,
-                    ngo_id: ngoId,
-                    fsp_id: fspId
-                },
-            },
-        })
+        const { data, error } = await onSignUp(email, password, {
+            firstName,
+            lastName,
+            phoneNumber,
+            ngoId: ngoId,
+            fspId: fspId
+        });
 
         if (error) {
             alert(error.message)

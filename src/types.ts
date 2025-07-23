@@ -1,5 +1,13 @@
 import type { GeofenceTypes } from "./constants";
 
+type SignUpOptions = {
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    ngoId: string | null;
+    fspId: string | null;
+};
+
 type LatLngCoord = { lat: number; lng: number };
 
 type GeofenceType = typeof GeofenceTypes[keyof typeof GeofenceTypes];
@@ -39,6 +47,7 @@ export interface AppContextType {
 }
 
 export type {
+    SignUpOptions,
     LatLngCoord,
     GeofenceType,
 };
