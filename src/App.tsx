@@ -2,28 +2,33 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/login/Login';
 import Dashboard from './pages/dashboard/Dashboard';
 import { useAppContext } from './hooks/use-app-context';
+import { Toaster } from 'sonner';
 
 function App() {
   const { isAuthenticated } = useAppContext();
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={
-          <Login />
-        } />
-        <Route path="/dashboard" element={
-          isAuthenticated ? (
-            <Dashboard />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        } />
-        <Route path="*" element={
-          <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
-        } />
-      </Routes>
-    </Router>
+    <>
+      <Toaster richColors position="top-right" />
+      <Router>
+        <Routes>
+          <Route path="/login" element={
+            <Login />
+          } />
+          <Route path="/dashboard" element={
+            isAuthenticated ? (
+              <Dashboard />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } />
+          <Route path="*" element={
+            <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
+          } />
+        </Routes>
+      </Router>
+    </>
+    
   );
 }
 

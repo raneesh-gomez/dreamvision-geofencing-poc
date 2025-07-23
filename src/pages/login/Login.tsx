@@ -86,7 +86,7 @@ const Login = () => {
     const handleSignup = async (event: React.FormEvent) => {
         event.preventDefault()
         if (password !== confirmPassword) {
-            alert("Passwords do not match!")
+            toast.error("Passwords do not match!");
             return
         }
         setLoading(true)
@@ -99,7 +99,7 @@ const Login = () => {
         });
 
         if (error) {
-            alert(error.message)
+            toast.error("There was an error when creating your account.")
         } else if (data.user) {
             const { error: profileError } = await insertRow("persons", {
                 id: data.user.id,
@@ -111,7 +111,7 @@ const Login = () => {
             });
 
             if (profileError) {
-                toast.error("There was an error when creating your account.")
+                toast.error("There was an error when creating your user profile.")
             } else {
                 setUser(data.user);
                 setIsAuthenticated(true)

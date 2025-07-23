@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import MapDrawing from '@/components/geofences/MapDrawing';
 import { useAppContext } from '@/hooks/use-app-context';
@@ -43,8 +43,6 @@ const Dashboard = () => {
                     </div>
                 </div>
             </nav>
-
-            <Toaster richColors position="top-right" />
 
             <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-950 p-4">
                 <Card className="w-full shadow-lg rounded-2xl border border-gray-200 dark:border-gray-800">
