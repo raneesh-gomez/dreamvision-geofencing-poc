@@ -1,4 +1,4 @@
-import { GeofenceContext } from '@/contexts/GeofenceContext';
+import { GeofenceContext } from '@/contexts/geofence-context/GeofenceContext';
 import { useContext } from 'react';
 
 export const useGeofenceContext = () => {

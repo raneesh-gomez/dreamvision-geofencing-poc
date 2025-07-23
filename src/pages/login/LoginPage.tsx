@@ -8,12 +8,10 @@ import { Label } from "./../../components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./../../components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./../../components/ui/select"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./../../components/ui/card"
+import { useAppContext } from "@/hooks/use-app-context";
 
-interface LoginProps {
-    setIsAuthenticated: (value: boolean) => void;
-}
-
-function LoginPage({ setIsAuthenticated }: LoginProps) {
+function LoginPage() {
+    const { setIsAuthenticated } = useAppContext();
     const [activeTab, setActiveTab] = useState("login")
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState("")

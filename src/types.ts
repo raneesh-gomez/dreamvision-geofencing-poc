@@ -33,6 +33,11 @@ export interface GeofenceContextType {
   deleteGeofence: (id: string) => void;
 }
 
+export interface AppContextType {
+  isAuthenticated: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 export type {
     LatLngCoord,
     GeofenceType,

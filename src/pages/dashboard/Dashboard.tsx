@@ -4,12 +4,10 @@ import { Toaster } from 'sonner';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import GeofenceSidebar from '@/components/maps/GeofenceSidebar';
 import MapDrawing from '@/components/maps/MapDrawing';
+import { useAppContext } from '@/hooks/use-app-context';
 
-interface DashboardProps {
-    setIsAuthenticated: (value: boolean) => void;
-}
-
-function Dashboard({ setIsAuthenticated }: DashboardProps) {
+function Dashboard() {
+    const { setIsAuthenticated } = useAppContext();
     const navigate = useNavigate();
 
     const handleLogout = async () => {

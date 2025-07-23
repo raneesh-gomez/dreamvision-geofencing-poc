@@ -1,20 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/login/LoginPage';
 import Dashboard from './pages/dashboard/Dashboard';
-import { useState } from 'react';
+import { useAppContext } from './hooks/use-app-context';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated } = useAppContext();
 
   return (
     <Router>
       <Routes>
         <Route path="/login" element={
-          <LoginPage setIsAuthenticated={setIsAuthenticated} />
+          <LoginPage />
         } />
         <Route path="/dashboard" element={
           isAuthenticated ? (
-            <Dashboard setIsAuthenticated={setIsAuthenticated} />
+            <Dashboard />
           ) : (
             <Navigate to="/login" replace />
           )

@@ -11,8 +11,8 @@ import { GeofenceTypeLabels, GeofenceTypes, InitialGeofenceData, RequiredParent 
 import { useEffect, useState } from "react";
 import type { GeofenceData } from "@/types";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
-import { validateStructure } from "@/lib/geofence-utils/validate-structure";
 import { fetchCountryBoundary, getCountryOptions, type CountryOption } from "@/lib/geofence-utils/country-utils";
+import { validateStructure } from "@/lib/geofence-utils/map-utils";
 
 const GeofenceCreateDialog = () => {
     const {

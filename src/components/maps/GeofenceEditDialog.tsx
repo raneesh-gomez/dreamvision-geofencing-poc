@@ -9,13 +9,13 @@ import { useEffect, useState } from "react";
 import { Pencil, Trash } from "lucide-react";
 import type { GeofenceData, GeofencePolygon } from "@/types";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
-import { validateStructure } from "@/lib/geofence-utils/validate-structure";
 import { getCountryOptions, type CountryOption } from "@/lib/geofence-utils/country-utils";
+import { validateStructure } from "@/lib/geofence-utils/map-utils";
 
 const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
     const {
         geofences,
-        updateGeofence,
+        updateGeofenceData,
         deleteGeofence
     } = useGeofenceContext();
     const [open, setOpen] = useState(false);
@@ -82,7 +82,7 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
         }
 
         setError(null);
-        updateGeofence(geofence.id, formData);
+        updateGeofenceData(geofence.id, formData);
         setOpen(false);
     };
 
