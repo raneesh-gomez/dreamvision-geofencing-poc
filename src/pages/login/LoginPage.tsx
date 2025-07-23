@@ -1,7 +1,6 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom';
-import { supabase } from "./../../lib/supabase/client"
 import { Button } from "./../../components/ui/button"
 import { Input } from "./../../components/ui/input"
 import { Label } from "./../../components/ui/label"
@@ -11,6 +10,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./../
 import { useAppContext } from "@/hooks/use-app-context";
 import { getSession, onAuthStateChange, onLogin, onSignUp } from "@/services/auth.service";
 import { toast } from "sonner";
+import { getFsps, getNgos } from "@/services/lookup.service";
+import { insertRow } from "@/services/database.service";
 
 function LoginPage() {
     const { setIsAuthenticated } = useAppContext();
@@ -29,36 +30,21 @@ function LoginPage() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        const fetchNgos = async () => {
-            const trySelect = async (table: string) => {
-                const { data, error } = await supabase.from(table).select("id, name")
-                if (error) {
-                    // Postgres error 42P01 = undefined_table
-                    if (error.code === "42P01") return null
-                    console.error(`Error fetching from "${table}":`, error.message)
-                    return null
-                }
-                return data
+        getNgos().then(({ data, error }) => {
+            if (error) {
+                toast.error("Failed to fetch NGOs");
+            } else {
+                setNgos(data);
             }
-            const results = await trySelect("ngo")
-            setNgos(results || [])
-        }
-        const fetchFsps = async () => {
-            const trySelect = async (table: string) => {
-                const { data, error } = await supabase.from(table).select("id, name")
-                if (error) {
-                    // Postgres error 42P01 = undefined_table
-                    if (error.code === "42P01") return null
-                    console.error(`Error fetching from "${table}":`, error.message)
-                    return null
-                }
-                return data
+        });
+
+        getFsps().then(({ data, error }) => {
+            if (error) {
+                toast.error("Failed to fetch FSPs");
+            } else {
+                setFsps(data);
             }
-            const results = await trySelect("fsp")
-            setFsps(results || [])
-        }
-        fetchNgos()
-        fetchFsps()
+        });
 
         getSession().then(({ data: { session } }) => {
             if (session) {
@@ -112,14 +98,14 @@ function LoginPage() {
         if (error) {
             alert(error.message)
         } else if (data.user) {
-            const { error: profileError } = await supabase.from("persons").insert({
+            const { error: profileError } = await insertRow("persons", {
                 id: data.user.id,
                 first_name: firstName,
                 last_name: lastName,
                 phone_number: phoneNumber,
                 ngo_id: ngoId,
                 fsp_id: fspId
-            })
+            });
 
             if (profileError) {
                 alert(`Signup successful, but person profile update failed: ${profileError.message}`)

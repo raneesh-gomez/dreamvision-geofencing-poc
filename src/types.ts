@@ -46,6 +46,16 @@ export interface AppContextType {
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+export interface NGO {
+  id: string;
+  name: string;
+}
+
+export interface FSP {
+  id: string;
+  name: string;
+}
+
 export type {
     SignUpOptions,
     LatLngCoord,
