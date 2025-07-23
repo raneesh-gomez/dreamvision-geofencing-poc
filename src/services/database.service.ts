@@ -3,9 +3,19 @@ import type { PostgrestError } from "@supabase/supabase-js";
 
 export const fetchTable = async <T>(
   table: string,
-  columns: string
+  columns: string,
+  filters?: { column: string; operator: "eq"; value: any }[]
 ): Promise<{ data: T[]; error: PostgrestError | null }> => {
-  const { data, error } = await supabase.from(table).select(columns);
+
+  let query = supabase.from(table).select(columns);
+  if (filters) {
+    for (const filter of filters) {
+      if (filter.operator === "eq") {
+        query = query.eq(filter.column, filter.value);
+      }
+    }
+  }
+  const { data, error } = await query;
   return { data: (data ?? []) as T[], error };
 };
 

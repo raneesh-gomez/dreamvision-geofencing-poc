@@ -40,3 +40,5 @@ export const ActiveDashboardTab = {
   GEOFENCES: "geofences",
   ORGANIZATION: "organization"
 };
+
+export const SUPABASE_GEOFENCE_TABLE = "geofences";

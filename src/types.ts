@@ -15,6 +15,21 @@ type GeofenceType = typeof GeofenceTypes[keyof typeof GeofenceTypes];
 
 type ActiveDashboardTabType = typeof ActiveDashboardTab[keyof typeof ActiveDashboardTab];
 
+type GeoFenceRow = {
+  id: string;
+  created_by: string;
+  original_path: LatLngCoord[];
+  clipped_path: LatLngCoord[];
+  name: string;
+  type: string;
+  priority: number;
+  parent_id?: string | null;
+  metadata?: any;
+  country_iso?: string | null;
+  created_date: string;
+  updated_date: string;
+};
+
 export interface GeofenceData {
   name: string;
   type: GeofenceType;
@@ -65,5 +80,6 @@ export type {
     SignUpOptions,
     LatLngCoord,
     GeofenceType,
-    ActiveDashboardTabType
+    ActiveDashboardTabType,
+    GeoFenceRow
 };

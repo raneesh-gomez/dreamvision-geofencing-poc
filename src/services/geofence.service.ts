@@ -6,6 +6,10 @@ import {
   hasSamePriorityOverlapWithSibling,
   resolveDownstreamClippingRecursive,
 } from '@/lib/geofence-utils/turf-utils';
+import type { User } from '@supabase/supabase-js';
+import { insertRow, updateRow } from "@/services/database.service";
+import { SUPABASE_GEOFENCE_TABLE } from '@/constants';
+import type { GeoFenceRow } from "@/types";
 
 /**
  * Validates geofence overlaps based on same-priority sibling rules.
@@ -20,11 +24,12 @@ const validateSiblingOverlap = (newGeofence: GeofencePolygon, siblings: Geofence
 /**
  * Handles complete creation logic of a geofence.
  */
-export const createGeofence = (
+export const createGeofence = async (
   path: LatLngCoord[],
   formData: GeofenceData,
-  existingGeofences: GeofencePolygon[]
-): { geofence?: GeofencePolygon; error?: string } => {
+  existingGeofences: GeofencePolygon[],
+  user: User
+): Promise<{ geofence?: GeofencePolygon; error?: string }> => {
   const parent = existingGeofences.find((g) => g.id === formData.parentId);
   const siblings = existingGeofences.filter(
     (g) => g.data.parentId === formData.parentId && g.data.type === formData.type
@@ -51,19 +56,38 @@ export const createGeofence = (
   // 🔁 Step 3: Clip to higher-priority siblings
   newGeofence = clipToHigherPrioritySiblings(newGeofence, siblings);
 
-  // TODO: Insert new geofence to Supabase
+  // Step 4: Insert to Supabase
+  const { id, originalPath, clippedPath, data } = newGeofence
+  const currentTimestamp = new Date().toISOString()
 
+  const { error } = await insertRow(SUPABASE_GEOFENCE_TABLE, {
+    id,
+    created_by: user.id,
+    original_path: originalPath,
+    clipped_path: clippedPath,
+    name: data.name,
+    type: data.type,
+    priority: data.priority,
+    parent_id: data.parentId,
+    metadata: data.metadata,
+    country_iso: data.countryISO ?? null,
+    created_date: currentTimestamp,
+    updated_date: currentTimestamp,
+  });
+
+  if (error) return { error: "There was an error when creating the geofence" }
+  
   return { geofence: newGeofence };
 }
 
 /**
  * Handles updating a geofence’s shape.
  */
-export const updateGeofencePath = (
+export const updateGeofencePath = async (
   id: string,
   newPath: LatLngCoord[],
   existingGeofences: GeofencePolygon[]
-): { updatedList?: GeofencePolygon[]; error?: string } => {
+): Promise<{ updatedList?: GeofencePolygon[]; error?: string }> => {
     const target = existingGeofences.find((g) => g.id === id);
     if (!target) return { error: "Geofence not found." };
 
@@ -100,7 +124,22 @@ export const updateGeofencePath = (
     // 🧬 Step 4: Recalculate downstream geofences affected by this update
     const resolved = resolveDownstreamClippingRecursive(updated, updatedList);
 
-    // TODO: Update entire geofence list to Supabase
+    // Step 5: Update entire geofence list to Supabase
+  for (const geo of resolved) {
+    const { error } = await updateRow<GeoFenceRow>(SUPABASE_GEOFENCE_TABLE, { id: geo.id }, {
+      original_path: geo.originalPath,
+      clipped_path: geo.clippedPath,
+      name: geo.data.name,
+      type: geo.data.type,
+      priority: geo.data.priority,
+      parent_id: geo.data.parentId,
+      metadata: geo.data.metadata,
+      country_iso: geo.data.countryISO ?? null,
+      updated_date: new Date().toISOString(),
+    });
 
-    return { updatedList: resolved };
+    if (error) return { error: `There was an error when updating the geofence with ${geo.id}` }
+  }
+
+  return { updatedList: resolved };
 }

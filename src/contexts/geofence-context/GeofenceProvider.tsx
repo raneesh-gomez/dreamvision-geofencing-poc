@@ -3,21 +3,54 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { GeofenceContext } from './GeofenceContext';
-import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
+import type { GeofenceData, GeofencePolygon, GeoFenceRow, GeofenceType, LatLngCoord } from '@/types';
 import { createGeofence, updateGeofencePath as applyGeofenceUpdate } from '@/services/geofence.service';
 import { useAppContext } from '@/hooks/use-app-context';
+import { fetchTable } from '@/services/database.service';
+import { SUPABASE_GEOFENCE_TABLE } from '@/constants';
+import type { User } from '@supabase/supabase-js';
 
 const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAppContext();
+  const { user }: { user: User | null } = useAppContext();
   const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
   const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
   const [drawingEnabled, setDrawingEnabled] = useState(false);
   const [focusedGeofence, setFocusedGeofence] = useState<GeofencePolygon | null>(null);
 
   useEffect(() => {
-    if (user) {
-      // TODO Fetch geofences from Supabase
-    }
+    const fetchGeofences = async () => {
+      if (!user) return;
+
+      const { data, error } = await fetchTable<GeoFenceRow>(
+        SUPABASE_GEOFENCE_TABLE,
+        "*",
+        [{ column: "created_by", operator: "eq", value: user.id }]
+      );
+
+      if (error) {
+        console.error("Error fetching geofences:", error.message);
+        return;
+      }
+      if (data) {
+        const polygons: GeofencePolygon[] = data.map((row) => ({
+          id: row.id,
+          originalPath: row.original_path,
+          clippedPath: row.clipped_path,
+          data: {
+            name: row.name,
+            type: row.type as GeofenceType,
+            priority: row.priority,
+            parentId: row.parent_id ?? null,
+            metadata: row.metadata ?? {},
+            countryISO: row.country_iso ?? undefined,
+          },
+        }));
+
+        setGeofences(polygons);
+      }
+    };
+
+    fetchGeofences();
   }, [user]);
 
   /**
@@ -34,11 +67,12 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
    * with the provided path and active form data.
    */
   const completeDrawing = useCallback(
-    (path: LatLngCoord[], formData?: GeofenceData) => {
+    async (path: LatLngCoord[], formData?: GeofenceData) => {
       const data = formData || activeForm;
       if (!data) return;
+      if (!user) return;
 
-      const result = createGeofence(path, data, geofences);
+      const result = await createGeofence(path, data, geofences, user);
 
       if (result.error) {
         toast.error(result.error);
@@ -60,8 +94,8 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
    * Updates the path of an existing geofence polygon.
    * This is used when the user edits the polygon on the map.
    */
-  const updateGeofencePath = (id: string, newPath: LatLngCoord[]) => {
-    const result = applyGeofenceUpdate(id, newPath, geofences);
+  const updateGeofencePath = async (id: string, newPath: LatLngCoord[]) => {
+    const result = await applyGeofenceUpdate(id, newPath, geofences);
 
     if (result.error) {
       toast.error(result.error);
