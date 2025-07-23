@@ -35,3 +35,8 @@ export const InitialGeofenceData: GeofenceData = {
     parentId: null,
     metadata: {},
 };
+
+export const ActiveDashboardTab = {
+  GEOFENCES: "geofences",
+  ORGANIZATION: "organization"
+};

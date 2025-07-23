@@ -1,17 +1,15 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "../ui/separator";
-import GeofenceHierarchy from "../organization/GeofenceHierarchy";
 import { GeofenceColors } from "@/constants";
 import { GeofenceTypeLabels } from '../../constants';
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
-import GeofenceCreateDialog from "../geofences/GeofenceCreateDialog";
-import GeofenceEditDialog from "../geofences/GeofenceEditDialog";
 import { convertGeofencesToGeoJSON } from "@/lib/geofence-utils/geojson-utils";
 import { Button } from "../ui/button";
 import { Download } from "lucide-react";
-import GeofenceOnFocus from "../geofences/GeofenceOnFocus";
+import GeofenceCreateDialog from "./GeofenceCreateDialog";
+import GeofenceEditDialog from "./GeofenceEditDialog";
+import GeofenceOnFocus from "./GeofenceOnFocus";
 
-const GeofenceSidebar = () => {
+const GeofenceManager = () => {
     const { geofences } = useGeofenceContext();
 
     const handleExport = () => {
@@ -28,15 +26,13 @@ const GeofenceSidebar = () => {
     };
 
     return (
-        <div className="flex flex-col p-4 h-screen w-full border-r border-gray-200 bg-white shadow-sm overflow-y-auto">
-            <div>
-                <h2 className="text-lg font-semibold tracking-tight text-gray-800">🛰️ DreamLink Geofencing POC</h2>
-                <p className="text-sm text-gray-500">A lightweight proof-of-concept playground for the upcoming DreamLink platform.</p>
-            </div>
-
-            <Separator className="my-4" />
-
+        <div className="flex flex-col px-4 h-fi w-full bg-white overflow-y-auto">
             <GeofenceCreateDialog />
+
+            <div className="mt-6 px-2">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">📍 Focused Geofence</h3>
+                <GeofenceOnFocus />
+            </div>
 
             <div className="mt-6 px-2">
                 <div className="flex justify-between items-center mb-2 px-2">
@@ -51,7 +47,7 @@ const GeofenceSidebar = () => {
                         Export
                     </Button>
                 </div>
-                <ScrollArea className="h-75 border rounded p-2 shadow-sm">
+                <ScrollArea className="h-200 border rounded p-2 shadow-sm">
                     <ul className="space-y-1 text-sm text-gray-700">
                         {geofences.map((g) => (
                             <div
@@ -77,22 +73,8 @@ const GeofenceSidebar = () => {
                     </ul>
                 </ScrollArea>
             </div>
-
-            <div className="mt-6 px-2">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">📍 Focused Geofence</h3>
-                <GeofenceOnFocus />
-            </div>
-
-            <div className="mt-6 px-2">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">🏢 Organizational Hierarchy</h3>
-                <GeofenceHierarchy geofences={geofences} />
-            </div>
-
-            <div className="mt-auto px-2 py-3 text-xs text-center text-gray-400">
-                Dreamstart Labs · 2025
-            </div>
         </div>
     );
 };
 
-export default GeofenceSidebar;
+export default GeofenceManager;

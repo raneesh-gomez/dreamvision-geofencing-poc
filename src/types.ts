@@ -1,4 +1,4 @@
-import type { GeofenceTypes } from "./constants";
+import type { ActiveDashboardTab, GeofenceTypes } from "./constants";
 
 type SignUpOptions = {
     firstName: string;
@@ -11,6 +11,8 @@ type SignUpOptions = {
 type LatLngCoord = { lat: number; lng: number };
 
 type GeofenceType = typeof GeofenceTypes[keyof typeof GeofenceTypes];
+
+type ActiveDashboardTabType = typeof ActiveDashboardTab[keyof typeof ActiveDashboardTab];
 
 export interface GeofenceData {
   name: string;
@@ -60,4 +62,5 @@ export type {
     SignUpOptions,
     LatLngCoord,
     GeofenceType,
+    ActiveDashboardTabType
 };
