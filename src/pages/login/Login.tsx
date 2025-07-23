@@ -14,7 +14,7 @@ import { getFsps, getNgos } from "@/services/lookup.service";
 import { insertRow } from "@/services/database.service";
 
 const Login = () => {
-    const { setIsAuthenticated } = useAppContext();
+    const { setIsAuthenticated, setUser } = useAppContext();
     const [activeTab, setActiveTab] = useState("login")
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState("")
@@ -48,31 +48,34 @@ const Login = () => {
 
         getSession().then(({ data: { session } }) => {
             if (session) {
-                setIsAuthenticated(true)
+                setUser(session.user);
+                setIsAuthenticated(true);
                 navigate("/dashboard")
             }
-        })
+        });
 
         const { data: authListener } = onAuthStateChange((_event, session) => {
             if (session) {
+                setUser(session.user);
                 setIsAuthenticated(true)
                 navigate("/dashboard")
             }
-        })
+        });
 
         return () => {
             authListener.subscription.unsubscribe()
         }
-    }, [navigate, setIsAuthenticated])
+    }, [navigate, setIsAuthenticated, setUser])
 
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault()
         setLoading(true)
         
-        const { error } = await onLogin(email, password);
+        const { data, error } = await onLogin(email, password);
         if (error) {
             toast.error('The email or password you entered is incorrect.');
         } else {
+            setUser(data.user);
             setIsAuthenticated(true)
             navigate("/dashboard")
         }
@@ -108,10 +111,10 @@ const Login = () => {
             });
 
             if (profileError) {
-                alert(`Signup successful, but person profile update failed: ${profileError.message}`)
+                toast.error("There was an error when creating your account.")
             } else {
+                setUser(data.user);
                 setIsAuthenticated(true)
-                console.log("Signed up successfully!")
                 navigate("/dashboard")
             }
         }

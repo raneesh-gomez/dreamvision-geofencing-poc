@@ -1,3 +1,4 @@
+import type { User } from "@supabase/supabase-js";
 import type { ActiveDashboardTab, GeofenceTypes } from "./constants";
 
 type SignUpOptions = {
@@ -44,7 +45,9 @@ export interface GeofenceContextType {
 }
 
 export interface AppContextType {
+  user: User | null;
   isAuthenticated: boolean;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 

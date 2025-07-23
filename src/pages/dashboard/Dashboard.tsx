@@ -14,7 +14,7 @@ import GeofenceManager from '@/components/geofences/GeofenceManager';
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState<ActiveDashboardTabType>(ActiveDashboardTab.GEOFENCES);
-    const { setIsAuthenticated } = useAppContext();
+    const { setIsAuthenticated, setUser } = useAppContext();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -22,6 +22,7 @@ const Dashboard = () => {
         if (error) {
             toast.error('Could not log out due to an error.');
         } else {
+            setUser(null);
             setIsAuthenticated(false);
             navigate('/login');
         }

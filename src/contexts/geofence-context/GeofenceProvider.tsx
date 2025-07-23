@@ -1,16 +1,24 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { toast } from 'sonner';
 
 import { GeofenceContext } from './GeofenceContext';
 import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
 import { createGeofence, updateGeofencePath as applyGeofenceUpdate } from '@/services/geofence.service';
+import { useAppContext } from '@/hooks/use-app-context';
 
 const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAppContext();
   const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
   const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
   const [drawingEnabled, setDrawingEnabled] = useState(false);
   const [focusedGeofence, setFocusedGeofence] = useState<GeofencePolygon | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      // TODO Fetch geofences from Supabase
+    }
+  }, [user]);
 
   /**
    * Starts the drawing process by setting the active form data.
