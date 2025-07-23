@@ -51,6 +51,8 @@ export const createGeofence = (
   // 🔁 Step 3: Clip to higher-priority siblings
   newGeofence = clipToHigherPrioritySiblings(newGeofence, siblings);
 
+  // TODO: Insert new geofence to Supabase
+
   return { geofence: newGeofence };
 }
 
@@ -97,6 +99,8 @@ export const updateGeofencePath = (
 
     // 🧬 Step 4: Recalculate downstream geofences affected by this update
     const resolved = resolveDownstreamClippingRecursive(updated, updatedList);
+
+    // TODO: Update entire geofence list to Supabase
 
     return { updatedList: resolved };
 }
