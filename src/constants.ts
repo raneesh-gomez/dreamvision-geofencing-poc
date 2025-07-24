@@ -21,11 +21,11 @@ export const GeofenceColors: Record<GeofenceType, string> = {
   [GeofenceTypes.FIELD_OFFICER]: "#EC4899", // pink
 };
 
-export const RequiredParent: Record<GeofenceType, string | null> = {
+export const AllowedParents: Record<GeofenceType, GeofenceType[] | null> = {
   [GeofenceTypes.COUNTRY]: null,
-  [GeofenceTypes.BRANCH]: GeofenceTypes.COUNTRY,
-  [GeofenceTypes.SUBBRANCH]: GeofenceTypes.BRANCH,
-  [GeofenceTypes.FIELD_OFFICER]: GeofenceTypes.SUBBRANCH,
+  [GeofenceTypes.BRANCH]: [GeofenceTypes.COUNTRY],
+  [GeofenceTypes.SUBBRANCH]: [GeofenceTypes.BRANCH],
+  [GeofenceTypes.FIELD_OFFICER]: [GeofenceTypes.BRANCH, GeofenceTypes.SUBBRANCH],
 };
 
 export const InitialGeofenceData: GeofenceData = {

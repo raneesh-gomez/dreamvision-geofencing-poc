@@ -1,6 +1,6 @@
 import type { LatLngCoord } from "@/types";
 import type { GeofenceData, GeofencePolygon } from "@/types";
-import { GeofenceTypeLabels, GeofenceTypes, RequiredParent } from "@/constants";
+import { GeofenceTypeLabels, GeofenceTypes, AllowedParents } from "@/constants";
 
 /**
  * Validates the structure of a geofence based on hierarchy rules.
@@ -14,9 +14,9 @@ export function validateStructure(
     if (geofence.type === GeofenceTypes.COUNTRY) return null;
 
     // For other types, check if a parent is required
-    const requiredParentType = RequiredParent[geofence.type];
-    if (!requiredParentType) {
-        return `No hierarchy rule defined for ${geofence.type}`;
+    const allowedParentTypes = AllowedParents[geofence.type];
+    if (!allowedParentTypes) {
+      return `No hierarchy rule defined for ${geofence.type}.`;
     }
 
     // If a parent is required, check if it exists and is of the correct type
@@ -30,8 +30,11 @@ export function validateStructure(
         return `The selected parent geofence does not exist.`;
     }
 
-    if (parent.data.type !== requiredParentType) {
-        return `The selected parent must be of type "${GeofenceTypeLabels[requiredParentType]}", but is a "${GeofenceTypeLabels[parent.data.type]}".`;
+    if (!allowedParentTypes.includes(parent.data.type)) {
+      const expectedTypes = allowedParentTypes
+        .map(type => `"${GeofenceTypeLabels[type]}"`)
+        .join(" or ");
+      return `The selected parent must be of type ${expectedTypes}, but is a "${GeofenceTypeLabels[parent.data.type]}".`;
     }
 
     return null;
