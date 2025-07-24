@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
+import type { GeofenceData, GeofencePolygon, GeofenceType, LatLngCoord } from '@/types';
 import {
   clipToParent,
   clipToHigherPrioritySiblings,
@@ -7,7 +7,7 @@ import {
   resolveDownstreamClippingRecursive,
 } from '@/lib/geofence-utils/turf-utils';
 import type { User } from '@supabase/supabase-js';
-import { deleteRow, insertRow, updateRow } from "@/services/database.service";
+import { deleteRow, insertRow, updateRow, fetchRows } from "@/services/database.service";
 import { SUPABASE_GEOFENCE_TABLE } from '@/constants';
 import type { GeoFenceRow } from "@/types";
 
@@ -76,7 +76,7 @@ export const createGeofence = async (
   });
 
   if (error) return { error: "There was an error when creating the geofence" }
-  
+
   return { geofence: newGeofence };
 };
 
@@ -88,43 +88,43 @@ export const updateGeofencePath = async (
   newPath: LatLngCoord[],
   existingGeofences: GeofencePolygon[]
 ): Promise<{ updatedList?: GeofencePolygon[]; error?: string }> => {
-    const target = existingGeofences.find((g) => g.id === id);
-    if (!target) return { error: "Geofence not found." };
+  const target = existingGeofences.find((g) => g.id === id);
+  if (!target) return { error: "Geofence not found." };
 
-    const parent = existingGeofences.find((g) => g.id === target.data.parentId);
-    const siblings = existingGeofences.filter(
-        (g) =>
-        g.id !== id &&
-        g.data.parentId === target.data.parentId &&
-        g.data.type === target.data.type
-    );
+  const parent = existingGeofences.find((g) => g.id === target.data.parentId);
+  const siblings = existingGeofences.filter(
+    (g) =>
+      g.id !== id &&
+      g.data.parentId === target.data.parentId &&
+      g.data.type === target.data.type
+  );
 
-    let updated: GeofencePolygon = {
-        ...target,
-        originalPath: newPath,
-        clippedPath: newPath,
-    };
+  let updated: GeofencePolygon = {
+    ...target,
+    originalPath: newPath,
+    clippedPath: newPath,
+  };
 
-    // ⚠️ Step 1: Validate sibling priority
-    const siblingError = validateSiblingOverlap(updated, siblings);
-    if (siblingError) return { error: siblingError };
+  // ⚠️ Step 1: Validate sibling priority
+  const siblingError = validateSiblingOverlap(updated, siblings);
+  if (siblingError) return { error: siblingError };
 
-    // 🧱 Step 2: Clip to parent if exists
-    if (parent) {
-        const clipped = clipToParent(updated, parent);
-        if (!clipped) return { error: "The updated polygon must be completely within its parent geofence." };
-        updated = clipped;
-    }
+  // 🧱 Step 2: Clip to parent if exists
+  if (parent) {
+    const clipped = clipToParent(updated, parent);
+    if (!clipped) return { error: "The updated polygon must be completely within its parent geofence." };
+    updated = clipped;
+  }
 
-    // 🔁 Step 3: Clip to higher-priority siblings
-    updated = clipToHigherPrioritySiblings(updated, siblings);
+  // 🔁 Step 3: Clip to higher-priority siblings
+  updated = clipToHigherPrioritySiblings(updated, siblings);
 
-    const updatedList = existingGeofences.map((g) => (g.id === id ? updated : g));
+  const updatedList = existingGeofences.map((g) => (g.id === id ? updated : g));
 
-    // 🧬 Step 4: Recalculate downstream geofences affected by this update
-    const resolved = resolveDownstreamClippingRecursive(updated, updatedList);
+  // 🧬 Step 4: Recalculate downstream geofences affected by this update
+  const resolved = resolveDownstreamClippingRecursive(updated, updatedList);
 
-    // Step 5: Update entire geofence list to Supabase
+  // Step 5: Update entire geofence list to Supabase
   for (const geo of resolved) {
     const { error } = await updateRow<GeoFenceRow>(SUPABASE_GEOFENCE_TABLE, { id: geo.id }, {
       original_path: geo.originalPath,
@@ -173,4 +173,37 @@ export const deleteGeofences = async (deletableIds: Array<string>): Promise<stri
   }
 
   return null;
+};
+
+/**
+ * Handles retrieving of geofences for a specific user
+ */
+export const retrieveGeofences = async (
+  userId: string
+): Promise<{ data?: GeofencePolygon[]; error?: string }> => {
+  const { data, error } = await fetchRows<GeoFenceRow>(
+    SUPABASE_GEOFENCE_TABLE,
+    "*",
+    [{ column: "created_by", operator: "eq", value: userId }]
+  );
+
+  if (error) {
+    return { error: error.message || "Error fetching geofences" };
+  }
+
+  const polygons: GeofencePolygon[] = (data ?? []).map((row) => ({
+    id: row.id,
+    originalPath: row.original_path,
+    clippedPath: row.clipped_path,
+    data: {
+      name: row.name,
+      type: row.type as GeofenceType,
+      priority: row.priority,
+      parentId: row.parent_id ?? null,
+      metadata: row.metadata ?? {},
+      countryISO: row.country_iso ?? undefined,
+    },
+  }));
+
+  return { data: polygons };
 };

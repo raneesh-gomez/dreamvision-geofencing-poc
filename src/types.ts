@@ -57,6 +57,8 @@ export interface GeofenceContextType {
   updateGeofencePath: (id: string, newPath: LatLngCoord[]) => void;
   updateGeofenceData: (id: string, updatedData: GeofenceData) => void;
   deleteGeofence: (id: string) => void;
+  refreshGeofences: () => Promise<void>;
+  setGeofences: React.Dispatch<React.SetStateAction<GeofencePolygon[]>>;
 }
 
 export interface AppContextType {
