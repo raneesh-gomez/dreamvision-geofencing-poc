@@ -63,7 +63,7 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
                 toast.success("Geofence created successfully!");
             }
         },
-        [activeForm, geofences, user]
+        [activeForm, geofences, refreshGeofences, user]
     );
 
     /**
