@@ -1,4 +1,4 @@
-import { Loader2, Plus } from "lucide-react";
+import { Download, Loader2, Plus } from "lucide-react";
 import area from "@turf/area";
 import { polygon as turfPolygon } from "@turf/helpers";
 import { Button } from "../ui/button";
@@ -13,6 +13,9 @@ import type { GeofenceData } from "@/types";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
 import { fetchCountryBoundary, getCountryOptions, type CountryOption } from "@/lib/geofence-utils/country-utils";
 import { validateStructure } from "@/lib/geofence-utils/map-utils";
+import { retrieveGeofences } from "@/services/geofence.service";
+import { convertGeofencesToGeoJSON } from "@/lib/geofence-utils/geojson-utils";
+import { useAppContext } from "@/hooks/use-app-context";
 
 const GeofenceCreateDialog = () => {
     const {
@@ -20,6 +23,7 @@ const GeofenceCreateDialog = () => {
         startDrawing,
         completeDrawing,
     } = useGeofenceContext();
+    const { user } = useAppContext();
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState<GeofenceData>(InitialGeofenceData);
     const [metaKey, setMetaKey] = useState("");
@@ -43,6 +47,23 @@ const GeofenceCreateDialog = () => {
     const validParentGeofences = allowedParentTypes
         ? geofences.filter((g) => allowedParentTypes.includes(g.data.type))
         : [];
+
+    const handleExport = async () => {
+        if (!user) return;
+        const { data: geofences } = await retrieveGeofences(user.id)
+        if (geofences) {
+            const geojson = convertGeofencesToGeoJSON(geofences);
+            const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'geofences.geojson';
+            link.click();
+
+            URL.revokeObjectURL(url);
+        }
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -131,11 +152,16 @@ const GeofenceCreateDialog = () => {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button className="w-full bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer">
-                    <Plus className="w-5 h-5" />Create Geofence
+            <div className="flex flex-row items-center justify-between gap-4">
+                <Button variant="outline" className="w-1/4 hover:cursor-pointer" onClick={handleExport}>
+                    <Download className="w-3 h-3" />Export
                 </Button>
-            </DialogTrigger>
+                <DialogTrigger asChild className="w-1/4">
+                    <Button className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer">
+                        <Plus className="w-5 h-5" />Create Geofence
+                    </Button>
+                </DialogTrigger>
+            </div>
             <DialogContent className="space-y-2 max-h-[90vh] overflow-y-auto">
                 <DialogTitle>
                     <span>Create Geofence</span>

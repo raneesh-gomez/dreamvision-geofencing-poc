@@ -2,36 +2,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { GeofenceColors } from "@/constants";
 import { GeofenceTypeLabels } from '../../constants';
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
-import { convertGeofencesToGeoJSON } from "@/lib/geofence-utils/geojson-utils";
-import { Button } from "../ui/button";
-import { Download } from "lucide-react";
 import GeofenceCreateDialog from "./GeofenceCreateDialog";
 import GeofenceEditDialog from "./GeofenceEditDialog";
 import GeofenceOnFocus from "./GeofenceOnFocus";
-import { retrieveGeofences } from '@/services/geofence.service'
-import { useAppContext } from '@/hooks/use-app-context';
 import type { GeofencePolygon } from "@/types";
+import { Separator } from "../ui/separator";
 
 const GeofenceManager = () => {
     const { geofences, setFocusedGeofence } = useGeofenceContext();
-    const { user } = useAppContext();
-
-    const handleExport = async () => {
-        if (!user) return;
-        const { data: geofences } = await retrieveGeofences(user.id)
-        if (geofences) {
-            const geojson = convertGeofencesToGeoJSON(geofences);
-            const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'geofences.geojson';
-            link.click();
-
-            URL.revokeObjectURL(url);
-        }
-    };
 
     const handleFocus = (focusedGeofence: GeofencePolygon) => {
         const geofence = geofences.find(g => g.id === focusedGeofence.id);
@@ -42,24 +20,15 @@ const GeofenceManager = () => {
         <div className="flex flex-col h-full">
             <GeofenceCreateDialog />
 
-            <div className="mt-6 px-2">
+            <Separator className="my-6" />
+
+            <div className="px-2">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">📍 Focused Geofence</h3>
                 <GeofenceOnFocus />
             </div>
 
             <div className="mt-6 px-2 flex-1 flex flex-col overflow-hidden">
-                <div className="flex justify-between items-center mb-2 px-2">
-                    <h3 className="text-sm font-medium text-gray-700">🗺️ Geofences</h3>
-                    <Button
-                        disabled={geofences.length <= 0}
-                        onClick={handleExport}
-                        variant="outline"
-                        className="text-xs px-3 py-1 flex items-center gap-1"
-                    >
-                        <Download className="w-3 h-3" />
-                        Export
-                    </Button>
-                </div>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">📍 Focused Geofence</h3>
                 <ScrollArea className="flex-1 border rounded p-2 bg-white shadow-sm overflow-y-auto">
                     <ul className="space-y-1 text-sm text-gray-700">
                         {geofences.map((g) => (
