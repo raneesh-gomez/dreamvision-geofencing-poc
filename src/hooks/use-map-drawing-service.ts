@@ -173,7 +173,7 @@ const useMapDrawingService = () => {
                 map,
                 editable: g.data.type !== GeofenceTypes.COUNTRY,
                 draggable: false,
-                clickable: true,
+                clickable: !isFocused,
                 strokeColor: isFocused ? "#374151" : GeofenceColors[g.data.type],
                 strokeWeight: isFocused ? 4 : 2,
                 fillColor: GeofenceColors[g.data.type],
@@ -182,7 +182,9 @@ const useMapDrawingService = () => {
             });
 
             attachPolygonChangeListeners(polygon, g.id);
-            attachPolygonClickListener(polygon, g);
+            if (!isFocused) {
+                attachPolygonClickListener(polygon, g);
+            }
             drawnPolygonsRef.current.push(polygon);
         });
 
