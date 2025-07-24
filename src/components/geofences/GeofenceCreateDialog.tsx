@@ -7,7 +7,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
-import { GeofenceTypeLabels, GeofenceTypes, InitialGeofenceData, RequiredParent } from "@/constants";
+import { GeofenceTypeLabels, GeofenceTypes, InitialGeofenceData, AllowedParents } from "@/constants";
 import { useEffect, useState } from "react";
 import type { GeofenceData } from "@/types";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
@@ -39,9 +39,9 @@ const GeofenceCreateDialog = () => {
      * Determines the valid parent geofences based on the selected type.
      * This is used to filter the available parent geofences in the dropdown.
      */
-    const allowedParentType = RequiredParent[formData.type];
-    const validParentGeofences = allowedParentType
-        ? geofences.filter((g) => g.data.type === allowedParentType)
+    const allowedParentTypes = AllowedParents[formData.type];
+    const validParentGeofences = allowedParentTypes
+        ? geofences.filter((g) => allowedParentTypes.includes(g.data.type))
         : [];
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

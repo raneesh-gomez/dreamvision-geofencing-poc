@@ -4,7 +4,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { GeofenceTypeLabels, GeofenceTypes, RequiredParent } from "@/constants";
+import { GeofenceTypeLabels, GeofenceTypes, AllowedParents } from "@/constants";
 import { useEffect, useState } from "react";
 import { Pencil, Trash } from "lucide-react";
 import type { GeofenceData, GeofencePolygon } from "@/types";
@@ -33,10 +33,10 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
         }
     }, [formData.type]);
 
-    const allowedParentType = RequiredParent[formData.type];
-    const validParentGeofences = allowedParentType
+    const allowedParentTypes = AllowedParents[formData.type];
+    const validParentGeofences = allowedParentTypes
         ? geofences.filter(
-            (g) => g.data.type === allowedParentType && g.id !== geofence.id
+            (g) => allowedParentTypes.includes(g.data.type) && g.id !== geofence.id
         )
         : [];
 
