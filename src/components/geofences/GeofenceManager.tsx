@@ -39,7 +39,7 @@ const GeofenceManager = () => {
     };
 
     return (
-        <div className="flex flex-col px-4 h-fi w-full overflow-y-auto">
+        <div className="flex flex-col h-full">
             <GeofenceCreateDialog />
 
             <div className="mt-6 px-2">
@@ -47,7 +47,7 @@ const GeofenceManager = () => {
                 <GeofenceOnFocus />
             </div>
 
-            <div className="mt-6 px-2">
+            <div className="mt-6 px-2 flex-1 flex flex-col overflow-hidden">
                 <div className="flex justify-between items-center mb-2 px-2">
                     <h3 className="text-sm font-medium text-gray-700">🗺️ Geofences</h3>
                     <Button
@@ -60,7 +60,7 @@ const GeofenceManager = () => {
                         Export
                     </Button>
                 </div>
-                <ScrollArea className="h-200 border rounded p-2 bg-white shadow-sm">
+                <ScrollArea className="flex-1 border rounded p-2 bg-white shadow-sm overflow-y-auto">
                     <ul className="space-y-1 text-sm text-gray-700">
                         {geofences.map((g) => (
                             <div
