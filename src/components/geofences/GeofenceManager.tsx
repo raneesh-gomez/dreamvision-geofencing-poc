@@ -8,22 +8,29 @@ import { Download } from "lucide-react";
 import GeofenceCreateDialog from "./GeofenceCreateDialog";
 import GeofenceEditDialog from "./GeofenceEditDialog";
 import GeofenceOnFocus from "./GeofenceOnFocus";
+import { retrieveGeofences } from '@/services/geofence.service'
+import { useAppContext } from '@/hooks/use-app-context';
 import type { GeofencePolygon } from "@/types";
 
 const GeofenceManager = () => {
     const { geofences, setFocusedGeofence } = useGeofenceContext();
+    const { user } = useAppContext();
 
-    const handleExport = () => {
-        const geojson = convertGeofencesToGeoJSON(geofences);
-        const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
+    const handleExport = async () => {
+        if (!user) return;
+        const { data: geofences } = await retrieveGeofences(user.id)
+        if (geofences) {
+            const geojson = convertGeofencesToGeoJSON(geofences);
+            const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
 
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'geofences.geojson';
-        link.click();
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'geofences.geojson';
+            link.click();
 
-        URL.revokeObjectURL(url);
+            URL.revokeObjectURL(url);
+        }
     };
 
     const handleFocus = (focusedGeofence: GeofencePolygon) => {
