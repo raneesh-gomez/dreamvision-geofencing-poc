@@ -3,171 +3,144 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { GeofenceContext } from './GeofenceContext';
-import type { GeofenceData, GeofencePolygon, GeoFenceRow, GeofenceType, LatLngCoord } from '@/types';
-import { createGeofence, updateGeofencePath as applyGeofencePathUpdate, updateGeofenceData as applyGeofenceDataUpdate, deleteGeofences } from '@/services/geofence.service';
+import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
+import { createGeofence, updateGeofencePath as applyGeofencePathUpdate, updateGeofenceData as applyGeofenceDataUpdate, deleteGeofences, retrieveGeofences } from '@/services/geofence.service';
 import { useAppContext } from '@/hooks/use-app-context';
-import { fetchTable } from '@/services/database.service';
-import { SUPABASE_GEOFENCE_TABLE } from '@/constants';
 import type { User } from '@supabase/supabase-js';
 
 const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user }: { user: User | null } = useAppContext();
-  const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
-  const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
-  const [drawingEnabled, setDrawingEnabled] = useState(false);
-  const [focusedGeofence, setFocusedGeofence] = useState<GeofencePolygon | null>(null);
+    const { user }: { user: User | null } = useAppContext();
+    const [geofences, setGeofences] = useState<GeofencePolygon[]>([]);
+    const [activeForm, setActiveForm] = useState<GeofenceData | null>(null);
+    const [drawingEnabled, setDrawingEnabled] = useState(false);
+    const [focusedGeofence, setFocusedGeofence] = useState<GeofencePolygon | null>(null);
 
-  useEffect(() => {
-    const fetchGeofences = async () => {
-      if (!user) return;
+    const refreshGeofences = useCallback(async () => {
+        if (!user) return;
 
-      const { data, error } = await fetchTable<GeoFenceRow>(
-        SUPABASE_GEOFENCE_TABLE,
-        "*",
-        [{ column: "created_by", operator: "eq", value: user.id }]
-      );
+        const { data, error } = await retrieveGeofences(user.id);
+        if (error) {
+            toast.error(error);
+            return;
+        }
+        if (data) setGeofences(data);
+    }, [user]);
 
-      if (error) {
-        toast.error("There was an error fetching your geofences");
-        return;
-      }
-      if (data) {
-        const polygons: GeofencePolygon[] = data.map((row) => ({
-          id: row.id,
-          originalPath: row.original_path,
-          clippedPath: row.clipped_path,
-          data: {
-            name: row.name,
-            type: row.type as GeofenceType,
-            priority: row.priority,
-            parentId: row.parent_id ?? null,
-            metadata: row.metadata ?? {},
-            countryISO: row.country_iso ?? undefined,
-          },
-        }));
+    useEffect(() => {
+        refreshGeofences();
+    }, [refreshGeofences]);
 
-        setGeofences(polygons);
-      }
-    };
+    /**
+     * Starts the drawing process by setting the active form data.
+     * This enables the drawing mode in the map.
+     */
+    const startDrawing = useCallback((formData: GeofenceData) => {
+        setActiveForm(formData);
+        setDrawingEnabled(true);
+    }, []);
 
-    fetchGeofences();
-  }, [user]);
+    /**
+     * Completes the drawing process by creating a new geofence polygon
+     * with the provided path and active form data.
+     */
+    const completeDrawing = useCallback(
+        async (path: LatLngCoord[], formData?: GeofenceData) => {
+            const data = formData || activeForm;
+            if (!data) return;
+            if (!user) return;
 
-  /**
-   * Starts the drawing process by setting the active form data.
-   * This enables the drawing mode in the map.
-   */
-  const startDrawing = useCallback((formData: GeofenceData) => {
-    setActiveForm(formData);
-    setDrawingEnabled(true);
-  }, []);
+            const result = await createGeofence(path, data, geofences, user);
 
-  /**
-   * Completes the drawing process by creating a new geofence polygon
-   * with the provided path and active form data.
-   */
-  const completeDrawing = useCallback(
-    async (path: LatLngCoord[], formData?: GeofenceData) => {
-      const data = formData || activeForm;
-      if (!data) return;
-      if (!user) return;
+            if (result.error) {
+                toast.error(result.error);
+                return;
+            }
 
-      const result = await createGeofence(path, data, geofences, user);
-
-      if (result.error) {
-        toast.error(result.error);
-        return;
-      }
-
-      if (result.geofence) {
-        const newGeofence = result.geofence;
-        setGeofences((prev) => [...prev, newGeofence]);
-        setDrawingEnabled(false);
-        setActiveForm(null);
-        toast.success("Geofence created successfully!");
-      }
-    },
-    [activeForm, geofences, user]
-  );
-
-  /**
-   * Updates the path of an existing geofence polygon.
-   * This is used when the user edits the polygon on the map.
-   */
-  const updateGeofencePath = async (id: string, newPath: LatLngCoord[]) => {
-    const result = await applyGeofencePathUpdate(id, newPath, geofences);
-
-    if (result.error) {
-      toast.error(result.error);
-      return;
-    }
-
-    if (result.updatedList) {
-      setGeofences(result.updatedList);
-      toast.success("Geofence updated successfully!");
-    }
-  };
-
-  /**
-   * Updates a geofence's data.
-   */
-  const updateGeofenceData = async (id: string, updatedData: GeofenceData) => {
-    const error = await applyGeofenceDataUpdate(id, updatedData);
-
-    if (error) {
-      toast.error(error);
-      return;
-    }
-
-    setGeofences(prev =>
-      prev.map(g =>
-        g.id === id ? { ...g, data: { ...updatedData } } : g
-      )
+            if (result.geofence) {
+                await refreshGeofences();
+                setDrawingEnabled(false);
+                setActiveForm(null);
+                toast.success("Geofence created successfully!");
+            }
+        },
+        [activeForm, geofences, user]
     );
 
-  };
+    /**
+     * Updates the path of an existing geofence polygon.
+     * This is used when the user edits the polygon on the map.
+     */
+    const updateGeofencePath = async (id: string, newPath: LatLngCoord[]) => {
+        const result = await applyGeofencePathUpdate(id, newPath, geofences);
 
-  /**
-   * Deletes a geofence.
-   */
-  const deleteGeofence = useCallback(
-    async (id: string) => {
-      const collectAllChildren = (targetId: string): string[] => {
-        const directChildren = geofences.filter(g => g.data.parentId === targetId);
-        const nestedChildren = directChildren.flatMap(child => collectAllChildren(child.id));
-        return [targetId, ...nestedChildren];
-      };
+        if (result.error) {
+            toast.error(result.error);
+            return;
+        }
 
-      const idsToDelete = collectAllChildren(id);
+        if (result.updatedList) {
+            await refreshGeofences();
+            toast.success("Geofence updated successfully!");
+        }
+    };
 
-      const error = await deleteGeofences(idsToDelete);
+    /**
+     * Updates a geofence's data.
+     */
+    const updateGeofenceData = async (id: string, updatedData: GeofenceData) => {
+        const error = await applyGeofenceDataUpdate(id, updatedData);
 
-      if (error) {
-        toast.error(error);
-        return;
-      }
+        if (error) {
+            toast.error(error);
+            return;
+        }
+        await refreshGeofences();
+    };
 
-      setGeofences((prev) => prev.filter((g) => !idsToDelete.includes(g.id)));
-    }, 
-  [geofences]);
+    /**
+     * Deletes a geofence.
+     */
+    const deleteGeofence = useCallback(
+        async (id: string) => {
+            const collectAllChildren = (targetId: string): string[] => {
+                const directChildren = geofences.filter(g => g.data.parentId === targetId);
+                const nestedChildren = directChildren.flatMap(child => collectAllChildren(child.id));
+                return [targetId, ...nestedChildren];
+            };
 
-  return (
-    <GeofenceContext.Provider value={{ 
-        geofences, 
-        activeForm, 
-        drawingEnabled,
-        focusedGeofence,
-        setFocusedGeofence,
-        startDrawing, 
-        completeDrawing,
-        updateGeofencePath,
-        updateGeofenceData,
-        deleteGeofence
-      }}
-    >
-      {children}
-    </GeofenceContext.Provider>
-  );
+            const idsToDelete = collectAllChildren(id);
+
+            const error = await deleteGeofences(idsToDelete);
+
+            if (error) {
+                toast.error(error);
+                return;
+            }
+
+            await refreshGeofences();
+            toast.success("Geofence(s) deleted successfully!");
+        },
+        [geofences, refreshGeofences]);
+
+    return (
+        <GeofenceContext.Provider value={{
+            geofences,
+            activeForm,
+            drawingEnabled,
+            focusedGeofence,
+            setFocusedGeofence,
+            startDrawing,
+            completeDrawing,
+            updateGeofencePath,
+            updateGeofenceData,
+            deleteGeofence,
+            refreshGeofences,
+            setGeofences
+        }}
+        >
+            {children}
+        </GeofenceContext.Provider>
+    );
 };
 
 export default GeofenceProvider;

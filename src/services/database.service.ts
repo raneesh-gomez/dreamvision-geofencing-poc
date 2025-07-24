@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase/client";
 import type { PostgrestError } from "@supabase/supabase-js";
 
-export const fetchTable = async <T>(
+export const fetchRows = async <T>(
   table: string,
   columns: string,
   filters?: { column: string; operator: "eq"; value: unknown }[]
