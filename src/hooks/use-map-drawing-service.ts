@@ -10,6 +10,7 @@ const useMapDrawingService = () => {
         geofences, 
         drawingEnabled, 
         activeForm,
+        focusedGeofence,
         setFocusedGeofence,
         completeDrawing, 
         updateGeofencePath 
@@ -154,7 +155,17 @@ const useMapDrawingService = () => {
         clearListeners(polygonListenersRef);
         clearPolygons(drawnPolygonsRef);
 
-        geofences.forEach((g) => {
+        const orderedGeofences = [...geofences];
+        if (focusedGeofence && focusedGeofence.data.type !== GeofenceTypes.COUNTRY) {
+            const index = orderedGeofences.findIndex(g => g.id === focusedGeofence.id);
+            if (index !== -1) {
+                const [target] = orderedGeofences.splice(index, 1);
+                orderedGeofences.push(target); // bring focused to front
+            }
+        }
+
+        orderedGeofences.map((g) => {
+            const isFocused = focusedGeofence?.id === g.id;
             // Make sure that the polygons are visualized based on the `clippedPath` and not the `originalPath`
             // This ensures that the visualized polygons respect the hierarchy and clipping rules
             const polygon = new google.maps.Polygon({
@@ -163,9 +174,11 @@ const useMapDrawingService = () => {
                 editable: g.data.type !== GeofenceTypes.COUNTRY,
                 draggable: false,
                 clickable: true,
-                strokeColor: GeofenceColors[g.data.type],
+                strokeColor: isFocused ? "#374151" : GeofenceColors[g.data.type],
+                strokeWeight: isFocused ? 4 : 2,
                 fillColor: GeofenceColors[g.data.type],
                 fillOpacity: 0.2,
+                zIndex: isFocused ? 999 : 1
             });
 
             attachPolygonChangeListeners(polygon, g.id);
@@ -177,7 +190,19 @@ const useMapDrawingService = () => {
             clearListeners(polygonListenersRef);
             clearPolygons(drawnPolygonsRef);
         };
-    }, [map, geofences, attachPolygonChangeListeners, attachPolygonClickListener]);
+    }, [map, geofences, focusedGeofence, attachPolygonChangeListeners, attachPolygonClickListener]);
+
+    useEffect(() => {
+        if (!map || !focusedGeofence) return;
+
+        const bounds = new google.maps.LatLngBounds();
+        focusedGeofence.clippedPath.forEach(coord => {
+            bounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
+        });
+
+        // Optional: cancel if already within bounds
+        map.fitBounds(bounds, 64);
+    }, [map, focusedGeofence]);
 
     return drawingManagerRef.current;
 }

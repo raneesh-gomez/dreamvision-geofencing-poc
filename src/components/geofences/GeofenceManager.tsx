@@ -8,9 +8,10 @@ import { Download } from "lucide-react";
 import GeofenceCreateDialog from "./GeofenceCreateDialog";
 import GeofenceEditDialog from "./GeofenceEditDialog";
 import GeofenceOnFocus from "./GeofenceOnFocus";
+import type { GeofencePolygon } from "@/types";
 
 const GeofenceManager = () => {
-    const { geofences } = useGeofenceContext();
+    const { geofences, setFocusedGeofence } = useGeofenceContext();
 
     const handleExport = () => {
         const geojson = convertGeofencesToGeoJSON(geofences);
@@ -23,6 +24,11 @@ const GeofenceManager = () => {
         link.click();
 
         URL.revokeObjectURL(url);
+    };
+
+    const handleFocus = (focusedGeofence: GeofencePolygon) => {
+        const geofence = geofences.find(g => g.id === focusedGeofence.id);
+        if (geofence) setFocusedGeofence(geofence);
     };
 
     return (
@@ -52,7 +58,8 @@ const GeofenceManager = () => {
                         {geofences.map((g) => (
                             <div
                                 key={g.id}
-                                className="flex items-center justify-between px-3 py-3 mb-3 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"
+                                className="flex items-center justify-between px-3 py-3 mb-3 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors cursor-grab"
+                                onClick={() => handleFocus(g)}
                             >
                                 <div className="flex items-center gap-3">
                                     <span

@@ -97,7 +97,7 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                     <Button
-                        className="text-xs p-2 bg-gray-100 hover:bg-gray-200 border"
+                        className="text-xs p-2 bg-gray-100 hover:bg-gray-200 border cursor-pointer"
                         variant="ghost"
                     >
                         <Pencil className="w-4 h-4 mr-1" /> Edit

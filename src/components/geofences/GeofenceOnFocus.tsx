@@ -18,7 +18,7 @@ const GeofenceOnFocus = () => {
                     <p><strong>Country Code:</strong> {focusedGeofence.data.countryISO}</p>
                 )}
             </>
-        ): (<p><small>Click on a geofence on the map to view more information on it.</small></p>)}
+        ): (<p><small>Click on a geofence on the list below to view more information on it.</small></p>)}
     </div>
   );
 };
