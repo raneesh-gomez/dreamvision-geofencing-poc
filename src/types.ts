@@ -24,7 +24,7 @@ type GeoFenceRow = {
   type: string;
   priority: number;
   parent_id?: string | null;
-  metadata?: any;
+  metadata?: Record<string, string>;
   country_iso?: string | null;
   created_date: string;
   updated_date: string;

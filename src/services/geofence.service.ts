@@ -7,7 +7,7 @@ import {
   resolveDownstreamClippingRecursive,
 } from '@/lib/geofence-utils/turf-utils';
 import type { User } from '@supabase/supabase-js';
-import { insertRow, updateRow } from "@/services/database.service";
+import { deleteRow, insertRow, updateRow } from "@/services/database.service";
 import { SUPABASE_GEOFENCE_TABLE } from '@/constants';
 import type { GeoFenceRow } from "@/types";
 
@@ -19,7 +19,7 @@ const validateSiblingOverlap = (newGeofence: GeofencePolygon, siblings: Geofence
     return "Polygons with the same priority cannot overlap. Please adjust the priority or shape.";
   }
   return null;
-}
+};
 
 /**
  * Handles complete creation logic of a geofence.
@@ -78,7 +78,7 @@ export const createGeofence = async (
   if (error) return { error: "There was an error when creating the geofence" }
   
   return { geofence: newGeofence };
-}
+};
 
 /**
  * Handles updating a geofence’s shape.
@@ -142,4 +142,35 @@ export const updateGeofencePath = async (
   }
 
   return { updatedList: resolved };
-}
+};
+
+/**
+ * Handles updating a geofence's data
+ */
+export const updateGeofenceData = async (id: string, updatedData: GeofenceData): Promise<string | null> => {
+  const { error } = await updateRow<GeoFenceRow>(SUPABASE_GEOFENCE_TABLE, { id }, {
+    name: updatedData.name,
+    type: updatedData.type,
+    priority: updatedData.priority,
+    parent_id: updatedData.parentId,
+    metadata: updatedData.metadata,
+    country_iso: updatedData.countryISO ?? null,
+    updated_date: new Date().toISOString(),
+  });
+
+  if (error) return `There was an error when updating the geofence "${updatedData.name}"`;
+
+  return null;
+};
+
+/**
+ * Handles deleting a given list of geofences
+ */
+export const deleteGeofences = async (deletableIds: Array<string>): Promise<string | null> => {
+  for (const id of deletableIds) {
+    const { error } = await deleteRow<GeoFenceRow>(SUPABASE_GEOFENCE_TABLE, { id });
+    if (error) return `There was an error when deleting the geofence with ID ${id}`;
+  }
+
+  return null;
+};

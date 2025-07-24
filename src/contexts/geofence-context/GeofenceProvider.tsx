@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 import { GeofenceContext } from './GeofenceContext';
 import type { GeofenceData, GeofencePolygon, GeoFenceRow, GeofenceType, LatLngCoord } from '@/types';
-import { createGeofence, updateGeofencePath as applyGeofenceUpdate } from '@/services/geofence.service';
+import { createGeofence, updateGeofencePath as applyGeofencePathUpdate, updateGeofenceData as applyGeofenceDataUpdate, deleteGeofences } from '@/services/geofence.service';
 import { useAppContext } from '@/hooks/use-app-context';
 import { fetchTable } from '@/services/database.service';
 import { SUPABASE_GEOFENCE_TABLE } from '@/constants';
@@ -28,7 +28,7 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
       );
 
       if (error) {
-        console.error("Error fetching geofences:", error.message);
+        toast.error("There was an error fetching your geofences");
         return;
       }
       if (data) {
@@ -87,7 +87,7 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
         toast.success("Geofence created successfully!");
       }
     },
-    [activeForm, geofences]
+    [activeForm, geofences, user]
   );
 
   /**
@@ -95,7 +95,7 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
    * This is used when the user edits the polygon on the map.
    */
   const updateGeofencePath = async (id: string, newPath: LatLngCoord[]) => {
-    const result = await applyGeofenceUpdate(id, newPath, geofences);
+    const result = await applyGeofencePathUpdate(id, newPath, geofences);
 
     if (result.error) {
       toast.error(result.error);
@@ -108,25 +108,48 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     }
   };
 
-  const updateGeofenceData = (id: string, updatedData: GeofenceData) => {
+  /**
+   * Updates a geofence's data.
+   */
+  const updateGeofenceData = async (id: string, updatedData: GeofenceData) => {
+    const error = await applyGeofenceDataUpdate(id, updatedData);
+
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
     setGeofences(prev =>
       prev.map(g =>
         g.id === id ? { ...g, data: { ...updatedData } } : g
       )
     );
+
   };
 
-  const deleteGeofence = useCallback((id: string) => {
-    const collectAllChildren = (targetId: string): string[] => {
-      const directChildren = geofences.filter(g => g.data.parentId === targetId);
-      const nestedChildren = directChildren.flatMap(child => collectAllChildren(child.id));
-      return [targetId, ...nestedChildren];
-    };
+  /**
+   * Deletes a geofence.
+   */
+  const deleteGeofence = useCallback(
+    async (id: string) => {
+      const collectAllChildren = (targetId: string): string[] => {
+        const directChildren = geofences.filter(g => g.data.parentId === targetId);
+        const nestedChildren = directChildren.flatMap(child => collectAllChildren(child.id));
+        return [targetId, ...nestedChildren];
+      };
 
-    const idsToDelete = collectAllChildren(id);
+      const idsToDelete = collectAllChildren(id);
 
-    setGeofences((prev) => prev.filter((g) => !idsToDelete.includes(g.id)));
-  }, [geofences]);
+      const error = await deleteGeofences(idsToDelete);
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      setGeofences((prev) => prev.filter((g) => !idsToDelete.includes(g.id)));
+    }, 
+  [geofences]);
 
   return (
     <GeofenceContext.Provider value={{ 

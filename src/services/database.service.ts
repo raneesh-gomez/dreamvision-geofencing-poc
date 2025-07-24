@@ -4,7 +4,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 export const fetchTable = async <T>(
   table: string,
   columns: string,
-  filters?: { column: string; operator: "eq"; value: any }[]
+  filters?: { column: string; operator: "eq"; value: unknown }[]
 ): Promise<{ data: T[]; error: PostgrestError | null }> => {
 
   let query = supabase.from(table).select(columns);
