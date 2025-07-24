@@ -66,7 +66,7 @@ const Dashboard = () => {
                                 {/* Geofence Manager */}
                                 <Card className="flex flex-col w-1/3">
                                     <CardHeader>
-                                        <CardTitle className="text-lg">📍 Geofence Manager</CardTitle>
+                                        <CardTitle className="text-lg">📍 Manage your Geofences</CardTitle>
                                         <CardDescription className="text-sm">
                                             Create, edit, and manage geofences with intuitive controls. Select a geofence to view its details or update its structure in real time.
                                         </CardDescription>

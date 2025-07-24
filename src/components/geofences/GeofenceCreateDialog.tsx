@@ -158,7 +158,7 @@ const GeofenceCreateDialog = () => {
                 </Button>
                 <DialogTrigger asChild className="w-1/4">
                     <Button className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer">
-                        <Plus className="w-5 h-5" />Create Geofence
+                        <Plus className="w-5 h-5" />New Geofence
                     </Button>
                 </DialogTrigger>
             </div>
