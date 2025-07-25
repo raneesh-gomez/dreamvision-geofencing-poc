@@ -111,12 +111,12 @@ const Profile = () => {
   return (
     <>
       <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 py-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate("/dashboard")}
-            className="gap-2"
+            className="gap-2 hover:cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
@@ -210,13 +210,13 @@ const Profile = () => {
             <div className="flex items-center justify-between pt-4 border-t">
               {!isEditing ? (
                 <div className="flex gap-3">
-                  <Button onClick={handleEdit}>
+                  <Button className="hover:cursor-pointer" onClick={handleEdit}>
                     Edit Profile
                   </Button>
                   <Button
                     variant="outline"
                     onClick={handlePasswordChange}
-                    className="gap-2"
+                    className="gap-2 hover:cursor-pointer"
                   >
                     <Lock className="h-4 w-4" />
                     Change Password
@@ -227,13 +227,14 @@ const Profile = () => {
                   <Button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="gap-2"
+                    className="gap-2 hover:cursor-pointer"
                   >
                     <Save className="h-4 w-4" />
                     {isSaving ? "Saving..." : "Save Changes"}
                   </Button>
                   <Button
                     variant="outline"
+                    className="hover:cursor-pointer"
                     onClick={handleCancel}
                     disabled={isSaving}
                   >

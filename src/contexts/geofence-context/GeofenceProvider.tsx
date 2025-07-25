@@ -7,6 +7,7 @@ import type { GeofenceData, GeofencePolygon, LatLngCoord } from '@/types';
 import { createGeofence, updateGeofencePath as applyGeofencePathUpdate, updateGeofenceData as applyGeofenceDataUpdate, deleteGeofences, retrieveGeofences } from '@/services/geofence.service';
 import { useAppContext } from '@/hooks/use-app-context';
 import type { User } from '@supabase/supabase-js';
+import { InitialGeofenceData } from '@/constants';
 
 const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user }: { user: User | null } = useAppContext();
@@ -37,6 +38,15 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     const startDrawing = useCallback((formData: GeofenceData) => {
         setActiveForm(formData);
         setDrawingEnabled(true);
+    }, []);
+
+    /**
+     * Stops the drawing process by resetting the active form data to default.
+     * This disables the drawing mode in the map.
+     */
+    const stopDrawing = useCallback(() => {
+        setActiveForm(InitialGeofenceData);
+        setDrawingEnabled(false);
     }, []);
 
     /**
@@ -130,6 +140,7 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
             focusedGeofence,
             setFocusedGeofence,
             startDrawing,
+            stopDrawing,
             completeDrawing,
             updateGeofencePath,
             updateGeofenceData,
