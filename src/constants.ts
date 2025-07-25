@@ -42,4 +42,4 @@ export const ActiveDashboardTab = {
 };
 
 export const SUPABASE_GEOFENCE_TABLE = "geofences";
-export const SUPABASE_PEROSN_TABLE = "persons";
+export const SUPABASE_PERSON_TABLE = "persons";

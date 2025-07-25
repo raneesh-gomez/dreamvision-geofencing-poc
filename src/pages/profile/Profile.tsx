@@ -9,7 +9,7 @@ import type { PersonRow, ProfileData } from "@/types";
 import { useAppContext } from "@/hooks/use-app-context";
 import { getFspById, getNgoById } from "@/services/lookup.service";
 import { updateRow } from "@/services/database.service";
-import { SUPABASE_PEROSN_TABLE } from "@/constants";
+import { SUPABASE_PERSON_TABLE } from "@/constants";
 import { toast } from "sonner";
 import { updateUserMetadata } from "@/services/auth.service";
 
@@ -64,7 +64,7 @@ const Profile = () => {
 
     try {
 
-      const { error } = await updateRow<PersonRow>(SUPABASE_PEROSN_TABLE, { id: user.id }, {
+      const { error } = await updateRow<PersonRow>(SUPABASE_PERSON_TABLE, { id: user.id }, {
         first_name: editedData.firstName,
         last_name: editedData.lastName,
         phone_number: editedData.phone
@@ -91,7 +91,7 @@ const Profile = () => {
       setIsEditing(false);
       toast.success("Profile updated successfully!");
 
-    } catch (error) {
+    } catch {
       toast.error("Failed to updated profile!")
     } finally {
       setIsSaving(false);
