@@ -77,6 +77,8 @@ const Dashboard = () => {
                                             defaultZoom={3}
                                             gestureHandling={"greedy"}
                                             disableDefaultUI={false}
+                                            streetViewControl={false}
+                                            fullscreenControl={false}
                                         />
                                         <MapDrawing />
                                     </CardContent>
