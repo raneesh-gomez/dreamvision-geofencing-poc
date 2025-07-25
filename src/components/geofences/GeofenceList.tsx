@@ -20,7 +20,7 @@ import { useAppContext } from "@/hooks/use-app-context";
 import { GeofenceTypeIcons } from "./GeofenceIcons";
 
 const GeofenceList = () => {
-    const { geofences, setFocusedGeofence, deleteGeofence } = useGeofenceContext();
+    const { geofences, drawingEnabled, setFocusedGeofence, deleteGeofence } = useGeofenceContext();
     const { user } = useAppContext();
     const [activeTypeFilter, setActiveTypeFilter] = useState<GeofenceType | null>(null);
     const [search, setSearch] = useState<string>("");
@@ -85,12 +85,14 @@ const GeofenceList = () => {
                         placeholder="Search geofences by name..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                        disabled={drawingEnabled}
                     />
                     <div className="flex flex-wrap items-center justify-between gap-2 my-4">
                         <Button
                             variant={activeTypeFilter === null ? "default" : "outline"}
                             onClick={() => setActiveTypeFilter(null)}
-                            className="flex justify-center items-center gap-2 w-1/6"
+                            className="flex justify-center items-center gap-2 w-1/6 hover:cursor-pointer"
+                            disabled={drawingEnabled}
                         >
                             <Rows4 className="w-4 h-4" />
                             All
@@ -100,7 +102,8 @@ const GeofenceList = () => {
                                 key={type}
                                 variant={activeTypeFilter === type ? "default" : "outline"}
                                 onClick={() => setActiveTypeFilter(type as GeofenceType)}
-                                className="flex justify-center items-center gap-2 w-1/6"
+                                className="flex justify-center items-center gap-2 w-1/6 hover:cursor-pointer"
+                                disabled={drawingEnabled}
                             >
                                 {GeofenceTypeIcons[type as GeofenceType]}
                                 {GeofenceTypeLabels[type as GeofenceType]}
@@ -132,8 +135,9 @@ const GeofenceList = () => {
                                     <Button
                                         size="icon"
                                         variant="outline"
-                                        className="w-8 h-8 border-gray-300 hover:border-gray-400 cursor-pointer"
+                                        className="w-8 h-8 border-gray-300 hover:border-gray-400 hover:cursor-pointer"
                                         onClick={() => handleFocus(g)}
+                                        disabled={drawingEnabled}
                                     >
                                         <Eye className="w-4 h-4" />
                                     </Button>
@@ -141,8 +145,9 @@ const GeofenceList = () => {
                                     <Button
                                         size="icon"
                                         variant="outline"
-                                        className="w-8 h-8 border-gray-300 hover:border-gray-400 cursor-pointer"
+                                        className="w-8 h-8 border-gray-300 hover:border-gray-400 hover:cursor-pointer"
                                         onClick={() => handleDeleteClick(g)}
+                                        disabled={drawingEnabled}
                                     >
                                         <Trash className="w-4 h-4" />
                                     </Button>
@@ -175,12 +180,14 @@ const GeofenceList = () => {
                                 </p>
                             )}
                             <div className="flex justify-end gap-2">
-                                <Button variant="ghost" onClick={() => setConfirmDeleteOpen(false)}>
+                                <Button variant="ghost" className="hover:cursor-pointer" onClick={() => setConfirmDeleteOpen(false)}>
                                     Cancel
                                 </Button>
                                 <Button
-                                    className="bg-red-600 text-white hover:bg-red-700"
+                                    variant="destructive"
+                                    className="hover:cursor-pointer"
                                     onClick={handleDelete}
+                                    disabled={drawingEnabled}
                                 >
                                     Confirm Delete
                                 </Button>

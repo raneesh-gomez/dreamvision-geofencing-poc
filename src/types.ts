@@ -61,6 +61,7 @@ export interface GeofenceContextType {
   focusedGeofence: GeofencePolygon | null;
   setFocusedGeofence: React.Dispatch<React.SetStateAction<GeofencePolygon | null>>;
   startDrawing: (formData: GeofenceData) => void;
+  stopDrawing: () => void;
   completeDrawing: (path: LatLngCoord[], formData?: GeofenceData) => void;
   updateGeofencePath: (id: string, newPath: LatLngCoord[]) => void;
   updateGeofenceData: (id: string, updatedData: GeofenceData) => void;

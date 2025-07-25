@@ -9,8 +9,11 @@ import GeofenceManager from '@/components/geofences/GeofenceManager';
 import { MapPin, Network } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import OrganizationalWidgets from '@/components/organization/OrganizationalWidgets';
+import { useGeofenceContext } from '@/hooks/use-geofence-context';
+import { Button } from '@/components/ui/button';
 
 const Dashboard = () => {
+    const { drawingEnabled, stopDrawing } = useGeofenceContext();
     const [activeTab, setActiveTab] = useState<ActiveDashboardTabType>(ActiveDashboardTab.GEOFENCES);
 
     return (
@@ -21,6 +24,7 @@ const Dashboard = () => {
                         <TabsTrigger
                             value={ActiveDashboardTab.GEOFENCES}
                             className="group relative z-10 w-80 px-4 py-2 flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-gray-100 data-[state=active]:text-white transition-colors data-[state=active]:bg-black rounded-md"
+                            disabled={drawingEnabled}
                         >
                             <MapPin className="w-4 h-4" />
                             Manage Geofences
@@ -28,6 +32,7 @@ const Dashboard = () => {
                         <TabsTrigger
                             value={ActiveDashboardTab.ORGANIZATION}
                             className="group relative z-10 w-80 px-4 py-2 flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-gray-100 data-[state=active]:text-white transition-colors data-[state=active]:bg-black rounded-md"
+                            disabled={drawingEnabled}
                         >
                             <Network className="w-4 h-4" />
                             Organizational Hierarchy
@@ -52,11 +57,18 @@ const Dashboard = () => {
 
                                 {/* Map View */}
                                 <Card className="flex flex-col w-2/3">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">🗺️ Interactive Map</CardTitle>
-                                        <CardDescription className="text-sm">
-                                            Visualize geofences on a live map. Draw new boundaries or adjust existing ones with precision and instant feedback.
-                                        </CardDescription>
+                                    <CardHeader className='flex flex-row items-center justify-between'>
+                                        <div className='flex flex-col items-start justify-start gap-1.5'>
+                                            <CardTitle className="text-lg">🗺️ Interactive Map</CardTitle>
+                                            <CardDescription className="text-sm">
+                                                Visualize geofences on a live map. Draw new boundaries or adjust existing ones with precision and instant feedback.
+                                            </CardDescription>
+                                        </div>
+                                        {drawingEnabled && (
+                                            <Button variant="destructive" className="hover:cursor-pointer" onClick={stopDrawing} disabled={!drawingEnabled}>
+                                                Stop Drawing
+                                            </Button>
+                                        )}
                                     </CardHeader>
                                     <CardContent className="flex-1 overflow-hidden px-4">
                                         <Map
@@ -76,7 +88,7 @@ const Dashboard = () => {
                     <TabsContent value={ActiveDashboardTab.ORGANIZATION} className="flex-1 flex overflow-hidden w-full pt-4">
                         <Card className="flex flex-col w-5/6">
                             <CardHeader>
-                                <CardTitle className="text-lg">Organizational Hierarchy</CardTitle>
+                                <CardTitle className="text-lg">💼 Organizational Hierarchy</CardTitle>
                                 <CardDescription className="text-sm">
                                     Use this panel to explore how your organizational units are connected — and who reports to whom.
                                 </CardDescription>

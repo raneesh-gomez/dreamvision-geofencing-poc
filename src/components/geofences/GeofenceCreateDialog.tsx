@@ -17,6 +17,7 @@ import { validateStructure } from "@/lib/geofence-utils/map-utils";
 const GeofenceCreateDialog = () => {
     const {
         geofences,
+        drawingEnabled,
         startDrawing,
         completeDrawing,
     } = useGeofenceContext();
@@ -132,7 +133,7 @@ const GeofenceCreateDialog = () => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild className="w-1/4">
-                <Button className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer">
+                <Button className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer" disabled={drawingEnabled}>
                     <Plus className="w-5 h-5" />New Geofence
                 </Button>
             </DialogTrigger>
@@ -241,7 +242,7 @@ const GeofenceCreateDialog = () => {
                 <Button 
                     className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer"
                     onClick={handleSubmit}
-                    disabled={loading}>
+                    disabled={loading || drawingEnabled}>
                         {loading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

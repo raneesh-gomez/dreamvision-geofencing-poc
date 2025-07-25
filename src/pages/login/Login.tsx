@@ -191,7 +191,7 @@ const Login = () => {
                                 </div>
                                 <Button
                                     type="submit"
-                                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
+                                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 hover:cursor-pointer text-white transition-colors duration-200"
                                     disabled={loading}
                                 >
                                     {loading ? "Logging in..." : "Login"}
@@ -317,7 +317,7 @@ const Login = () => {
                                 </div>
                                 <Button
                                     type="submit"
-                                    className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white transition-colors duration-200"
+                                    className="w-full mt-4 bg-green-600 hover:bg-green-700 hover:cursor-pointer text-white transition-colors duration-200"
                                     disabled={loading}
                                 >
                                     {loading ? "Signing up..." : "Sign Up"}

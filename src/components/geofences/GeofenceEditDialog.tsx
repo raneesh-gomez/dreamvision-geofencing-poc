@@ -15,6 +15,7 @@ import { validateStructure } from "@/lib/geofence-utils/map-utils";
 const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
     const {
         geofences,
+        drawingEnabled,
         updateGeofenceData
     } = useGeofenceContext();
     const [open, setOpen] = useState(false);
@@ -78,7 +79,8 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
                     <Button
                         size="icon"
                         variant="outline"
-                        className="w-8 h-8 border-gray-300 hover:border-gray-400 cursor-pointer"
+                        className="w-8 h-8 border-gray-300 hover:border-gray-400 hover:cursor-pointer"
+                        disabled={drawingEnabled}
                     >
                         <Pencil className="w-4 h-4" />
                     </Button>
@@ -206,6 +208,7 @@ const GeofenceEditDialog = ({ geofence }: { geofence: GeofencePolygon }) => {
                     <Button
                         className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer"
                         onClick={handleSubmit}
+                        disabled={drawingEnabled}
                     >
                         Save Changes
                     </Button>
