@@ -115,7 +115,7 @@ const Dashboard = () => {
                         {/* TODO Add geofence widgets panel */}
                     </TabsContent>
 
-                    <div className='flex items-center justify-center text-center py-4'>
+                    <div className='flex items-center justify-center text-center py-2'>
                         <p className='text-sm text-gray-400'>© 2025 Dreamstart Labs</p>
                     </div>
                 </Tabs>

@@ -10,7 +10,7 @@ const GeofenceOnFocus = () => {
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-row items-center gap-3 pb-2">
+      <CardHeader className="flex flex-row items-center gap-3">
         <MapPin className="w-5 h-5 text-muted-foreground" />
         <div>
           <CardTitle className="text-sm font-medium">

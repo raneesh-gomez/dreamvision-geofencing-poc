@@ -1,61 +1,13 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { GeofenceColors } from "@/constants";
-import { GeofenceTypeLabels } from '../../constants';
-import { useGeofenceContext } from "@/hooks/use-geofence-context";
 import GeofenceCreateDialog from "./GeofenceCreateDialog";
-import GeofenceEditDialog from "./GeofenceEditDialog";
-import GeofenceOnFocus from "./GeofenceOnFocus";
-import type { GeofencePolygon } from "@/types";
-import { Separator } from "../ui/separator";
+import GeofenceList from "./GeofenceList";
 
 const GeofenceManager = () => {
-    const { geofences, setFocusedGeofence } = useGeofenceContext();
-
-    const handleFocus = (focusedGeofence: GeofencePolygon) => {
-        const geofence = geofences.find(g => g.id === focusedGeofence.id);
-        if (geofence) setFocusedGeofence(geofence);
-    };
-
     return (
         <div className="flex flex-col h-full">
             <GeofenceCreateDialog />
 
-            <Separator className="my-6" />
-
-            <div className="px-2">
-                <GeofenceOnFocus />
-            </div>
-
-            <div className="mt-6 px-2 flex-1 flex flex-col overflow-hidden">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">📌 Geofences</h3>
-                {/* TODO Add search field and filter buttons for each geofence type */}
-                <ScrollArea className="flex-1 border rounded p-2 bg-white shadow-sm overflow-y-auto">
-                    <ul className="space-y-1 text-sm text-gray-700">
-                        {geofences.map((g) => (
-                            <div
-                                key={g.id}
-                                className="flex items-center justify-between px-3 py-3 mb-3 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors cursor-grab"
-                                onClick={() => handleFocus(g)}
-                            >
-                                {/* TODO Change div onClick to an eye icon */}
-                                <div className="flex items-center gap-3">
-                                    <span
-                                        className="w-3 h-3 rounded-full"
-                                        style={{ backgroundColor: GeofenceColors[g.data.type] }}
-                                    />
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-medium text-gray-800">{g.data.name}</span>
-                                        <span className="text-xs px-2 py-0.5 mt-2 rounded-full bg-gray-200 text-gray-600 w-fit">
-                                            {GeofenceTypeLabels[g.data.type]}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <GeofenceEditDialog geofence={g} />
-                            </div>
-                        ))}
-                    </ul>
-                </ScrollArea>
+            <div className="mt-6 flex-1 flex flex-col overflow-hidden">
+                <GeofenceList />
             </div>
         </div>
     );
