@@ -22,7 +22,7 @@ function App() {
                 <Profile />
               </>
             ) : (
-              <Navigate to="/login" replace />
+              <Navigate to="/login" replace state={{ from: "/profile" }} />
             )
           } />
           <Route path="/dashboard" element={
@@ -38,6 +38,10 @@ function App() {
           <Route path="/login" element={
             <Login />
           } />
+          <Route
+            path="/"
+            element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
 

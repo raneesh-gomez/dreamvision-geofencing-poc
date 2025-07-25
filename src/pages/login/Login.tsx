@@ -1,6 +1,6 @@
 import type React from "react"
 import { useState, useEffect } from "react"
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
@@ -28,6 +28,8 @@ const Login = () => {
     const [fspId, setFspId] = useState<string | null>(null)
     const [fsps, setFsps] = useState<{ id: string; name: string }[]>([])
     const navigate = useNavigate()
+    const location = useLocation();
+    const originalRoute = location.state?.from || "/dashboard";
 
     useEffect(() => {
         getNgos().then(({ data, error }) => {
@@ -50,7 +52,7 @@ const Login = () => {
             if (session) {
                 setUser(session.user);
                 setIsAuthenticated(true);
-                navigate("/dashboard")
+                navigate(originalRoute, { replace: true });
             }
         });
 
@@ -58,7 +60,7 @@ const Login = () => {
             if (session) {
                 setUser(session.user);
                 setIsAuthenticated(true)
-                navigate("/dashboard")
+                navigate(originalRoute, { replace: true });
             }
         });
 
@@ -70,14 +72,14 @@ const Login = () => {
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault()
         setLoading(true)
-        
+
         const { data, error } = await onLogin(email, password);
         if (error) {
             toast.error('The email or password you entered is incorrect.');
         } else {
             setUser(data.user);
             setIsAuthenticated(true)
-            navigate("/dashboard")
+            navigate(originalRoute, { replace: true });
         }
 
         setLoading(false)
@@ -115,7 +117,7 @@ const Login = () => {
             } else {
                 setUser(data.user);
                 setIsAuthenticated(true)
-                navigate("/dashboard")
+                navigate(originalRoute, { replace: true });
             }
         }
         setFirstName("")
