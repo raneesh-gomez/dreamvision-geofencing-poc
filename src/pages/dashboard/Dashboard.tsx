@@ -23,7 +23,7 @@ const Dashboard = () => {
                     <TabsList className="relative inline-flex mt-4 bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden p-1">
                         <TabsTrigger
                             value={ActiveDashboardTab.GEOFENCES}
-                            className="group relative z-10 w-80 px-4 py-2 flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-gray-100 data-[state=active]:text-white transition-colors data-[state=active]:bg-black rounded-md"
+                            className="group relative z-10 w-80 px-4 py-2 flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-gray-100 data-[state=active]:text-white transition-colors data-[state=active]:bg-black rounded-md hover:cursor-pointer"
                             disabled={drawingEnabled}
                         >
                             <MapPin className="w-4 h-4" />
@@ -31,7 +31,7 @@ const Dashboard = () => {
                         </TabsTrigger>
                         <TabsTrigger
                             value={ActiveDashboardTab.ORGANIZATION}
-                            className="group relative z-10 w-80 px-4 py-2 flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-gray-100 data-[state=active]:text-white transition-colors data-[state=active]:bg-black rounded-md"
+                            className="group relative z-10 w-80 px-4 py-2 flex items-center gap-2 text-sm font-medium text-gray-700 hover:bg-gray-100 data-[state=active]:text-white transition-colors data-[state=active]:bg-black rounded-md hover:cursor-pointer"
                             disabled={drawingEnabled}
                         >
                             <Network className="w-4 h-4" />
