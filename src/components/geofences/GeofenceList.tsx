@@ -100,7 +100,7 @@ const GeofenceList = () => {
                         <Button
                             variant={activeTypeFilter === null ? "default" : "outline"}
                             onClick={() => setActiveTypeFilter(null)}
-                            className="flex justify-center items-center gap-2"
+                            className="flex justify-center items-center gap-2 w-1/6"
                         >
                             <Globe className="w-4 h-4" />
                             All
@@ -110,7 +110,7 @@ const GeofenceList = () => {
                                 key={type}
                                 variant={activeTypeFilter === type ? "default" : "outline"}
                                 onClick={() => setActiveTypeFilter(type as GeofenceType)}
-                                className="flex justify-center items-center gap-2"
+                                className="flex justify-center items-center gap-2 w-1/6"
                             >
                                 {GeofenceTypeIcons[type as GeofenceType]}
                                 {GeofenceTypeLabels[type as GeofenceType]}

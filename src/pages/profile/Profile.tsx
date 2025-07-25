@@ -77,7 +77,7 @@ const Profile = () => {
 
   return (
     <>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6 py-5">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
