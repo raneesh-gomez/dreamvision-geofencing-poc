@@ -5,9 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import type { ProfileData } from "@/types";
+import type { PersonRow, ProfileData } from "@/types";
 import { useAppContext } from "@/hooks/use-app-context";
 import { getFspById, getNgoById } from "@/services/lookup.service";
+import { updateRow } from "@/services/database.service";
+import { SUPABASE_PEROSN_TABLE } from "@/constants";
+import { toast } from "sonner";
+import { updateUserMetadata } from "@/services/auth.service";
 
 const Profile = () => {
 
@@ -35,8 +39,6 @@ const Profile = () => {
         getFspById(fsp_id)
       ]);
 
-      console.log(ngoResult)
-      console.log(fspResult)
       setProfileData(prev => ({
         ...prev,
         ngoName: ngoResult?.data?.name || "",
@@ -44,7 +46,7 @@ const Profile = () => {
       }));
     }
     fetchNames();
-  }, []);
+  }, [user]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -57,21 +59,40 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
+    if (!user) return;
     setIsSaving(true);
 
     try {
-      // TODO: Replace with actual API call
-      // await updateProfile(editedData);
 
-      // Simulate API call
-      // await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await updateRow<PersonRow>(SUPABASE_PEROSN_TABLE, { id: user.id }, {
+        first_name: editedData.firstName,
+        last_name: editedData.lastName,
+        phone_number: editedData.phone
+      });
 
+      if (error) {
+        toast.error("Failed to updated profile!");
+        setIsSaving(false);
+        return;
+      }
+
+      const { error: authError } = await updateUserMetadata({
+        first_name: editedData.firstName,
+        last_name: editedData.lastName,
+        phone_number: editedData.phone
+      })
+
+      if (authError) {
+        toast.error("Failed to update authentication profile!");
+        setIsSaving(false);
+        return;
+      }
       setProfileData(editedData);
       setIsEditing(false);
-
+      toast.success("Profile updated successfully!");
 
     } catch (error) {
-
+      toast.error("Failed to updated profile!")
     } finally {
       setIsSaving(false);
     }
@@ -102,7 +123,7 @@ const Profile = () => {
           </Button>
         </div>
 
-         <div>
+        <div>
           <h1 className="text-3xl font-bold tracking-tight">👤 Profile</h1>
           <p className="text-muted-foreground">
             Manage your Personal Information

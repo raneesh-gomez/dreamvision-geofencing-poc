@@ -2,11 +2,11 @@ import type { User } from "@supabase/supabase-js";
 import type { ActiveDashboardTab, GeofenceTypes } from "./constants";
 
 type SignUpOptions = {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    ngoId: string | null;
-    fspId: string | null;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  ngoId: string | null;
+  fspId: string | null;
 };
 
 type LatLngCoord = { lat: number; lng: number };
@@ -95,12 +95,22 @@ export interface ProfileData {
   fspName: string;
 }
 
+type PersonRow = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string | null;
+  ngo_id: string;
+  fsp_id: string;
+};
+
 export type {
-    SignUpOptions,
-    LatLngCoord,
-    GeofenceType,
-    ActiveDashboardTabType,
-    GeoFenceRow,
-    DbOperator,
-    DbFetchFilter
+  SignUpOptions,
+  LatLngCoord,
+  GeofenceType,
+  ActiveDashboardTabType,
+  GeoFenceRow,
+  DbOperator,
+  DbFetchFilter,
+  PersonRow
 };

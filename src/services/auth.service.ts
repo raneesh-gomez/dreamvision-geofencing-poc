@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import type { SignUpOptions } from "@/types";
-import type { AuthChangeEvent, AuthError, AuthResponse, AuthTokenResponsePassword, Session } from "@supabase/supabase-js";
+import type { AuthChangeEvent, AuthError, AuthResponse, AuthTokenResponsePassword, Session, User } from "@supabase/supabase-js";
 
 export const getSession = async () => {
     return await supabase.auth.getSession();
@@ -34,4 +34,21 @@ export const onLogout = async (): Promise<AuthError | null> => {
 
 export const onAuthStateChange = (callback: (event: AuthChangeEvent, session: Session | null) => void) => {
     return supabase.auth.onAuthStateChange(callback);
+};
+
+export const updateUserMetadata = async (
+    metadata: Partial<{
+        first_name: string;
+        last_name: string;
+        phone_number: string | null;
+        ngo_id: string;
+        fsp_id: string;
+        [key: string]: any;
+    }>
+): Promise<{ user: User | null; error: AuthError | null }> => {
+    const { data, error } = await supabase.auth.updateUser({
+        data: metadata,
+    });
+    const user = data?.user ?? null;
+    return { user, error };
 };
