@@ -1,9 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import MapDrawing from '@/components/geofences/MapDrawing';
-import { useAppContext } from '@/hooks/use-app-context';
-import { onLogout } from '@/services/auth.service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
 import type { ActiveDashboardTabType } from '@/types';
@@ -14,32 +10,11 @@ import { MapPin, Network } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 
 const Dashboard = () => {
+    console.log("Dashboard rendering")
     const [activeTab, setActiveTab] = useState<ActiveDashboardTabType>(ActiveDashboardTab.GEOFENCES);
-    const { setIsAuthenticated, setUser } = useAppContext();
-    const navigate = useNavigate();
-
-    const handleLogout = async () => {
-        const error = await onLogout();
-        if (error) {
-            toast.error('Could not log out due to an error.');
-        } else {
-            setUser(null);
-            setIsAuthenticated(false);
-            navigate('/login');
-        }
-    };
 
     return (
         <div className="flex flex-col h-screen bg-gray-100">
-            <nav className="flex items-center justify-between px-6 h-16 bg-white shadow-sm drop-shadow-md">
-                <h1 className="text-xl font-semibold">DreamLink 1.0</h1>
-                <button
-                    onClick={handleLogout}
-                    className="text-gray-600 hover:text-gray-900"
-                >
-                    Logout
-                </button>
-            </nav>
 
             <div className="flex-1 flex flex-col overflow-hidden bg-gray-100 dark:bg-gray-950 px-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full items-center justify-center">
@@ -66,7 +41,7 @@ const Dashboard = () => {
                                 {/* Geofence Manager */}
                                 <Card className="flex flex-col w-1/3">
                                     <CardHeader>
-                                        <CardTitle className="text-lg">📍 Manage your Geofences</CardTitle>
+                                        <CardTitle className="text-lg">📍 Geofence Manager</CardTitle>
                                         <CardDescription className="text-sm">
                                             Create, edit, and manage geofences with intuitive controls. Select a geofence to view its details or update its structure in real time.
                                         </CardDescription>
