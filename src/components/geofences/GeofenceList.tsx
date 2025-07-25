@@ -54,10 +54,10 @@ const GeofenceList = () => {
                 <Layers3 className="w-5 h-5 text-muted-foreground" />
                 <div>
                     <CardTitle className="text-sm font-medium">
-                        Geofences
+                        Your Geofences
                     </CardTitle>
                     <CardDescription>
-                        Manage and explore all existing geofences across your organizational regions
+                        Manage and explore all your existing geofences across your organizational regions
                     </CardDescription>
                 </div>
             </CardHeader>
