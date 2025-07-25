@@ -86,6 +86,15 @@ export interface FSP {
   name: string;
 }
 
+export interface ProfileData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  ngoName: string;
+  fspName: string;
+}
+
 export type {
     SignUpOptions,
     LatLngCoord,
