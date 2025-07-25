@@ -29,17 +29,18 @@ const GeofenceManager = () => {
     return (
         <div className="flex flex-col h-full">
             <div className="flex flex-row items-center justify-between gap-4">
-                <Button variant="outline" className="w-1/4 hover:cursor-pointer" onClick={handleExport}>
-                    <Download className="w-3 h-3" />Export
-                </Button>
-                <Button variant="outline" className="w-1/4 hover:cursor-pointer">
-                    <Upload className="w-3 h-3" />Import
-                </Button>
-                {/* TODO Add GeoJSON import functionality */}
+                <div className="flex flex-row items-center justify-start gap-4 w-full">
+                    <Button variant="outline" className="w-1/3 hover:cursor-pointer" onClick={handleExport}>
+                        <Download className="w-3 h-3" />Export
+                    </Button>
+                    {/* TODO Add GeoJSON import functionality */}
+                    <Button variant="outline" className="w-1/3 hover:cursor-pointer">
+                        <Upload className="w-3 h-3" />Import
+                    </Button>
+                </div>
                 <GeofenceCreateDialog />
             </div>
             
-
             <div className="mt-6 flex-1 flex flex-col overflow-hidden">
                 <GeofenceList />
             </div>

@@ -4,7 +4,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import NotFound from './pages/notFound/NotFound';
 import { useAppContext } from './hooks/use-app-context';
 import { Toaster } from 'sonner';
-import { Header } from './components/ui/top-bar';
+import { Header } from './components/common/Header';
 import Profile from './pages/profile/Profile';
 
 function App() {

@@ -14,8 +14,7 @@ const Dashboard = () => {
     const [activeTab, setActiveTab] = useState<ActiveDashboardTabType>(ActiveDashboardTab.GEOFENCES);
 
     return (
-        <div className="flex flex-col h-screen bg-gray-100">
-
+        <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-100">
             <div className="flex-1 flex flex-col overflow-hidden bg-gray-100 dark:bg-gray-950 px-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full items-center justify-center">
                     <TabsList className="relative inline-flex mt-4 bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden p-1">
