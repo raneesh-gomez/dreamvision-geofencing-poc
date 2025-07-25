@@ -1,38 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Save, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-
-interface ProfileData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  ngo: string;
-  fsp: string;
-}
+import type { ProfileData } from "@/types";
+import { useAppContext } from "@/hooks/use-app-context";
+import { getFspById, getNgoById } from "@/services/lookup.service";
 
 const Profile = () => {
-  console.log("Profile rendering")
+
   const navigate = useNavigate();
+  const { user } = useAppContext();
 
-
-  // Mock user data - replace with actual data from your API
   const [profileData, setProfileData] = useState<ProfileData>({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    ngo: "Tech for Good Foundation",
-    fsp: "Financial Services Partner ABC"
+    firstName: user?.user_metadata.first_name,
+    lastName: user?.user_metadata.last_name,
+    email: user?.user_metadata.email,
+    phone: user?.user_metadata.phone_number,
+    ngoName: "",
+    fspName: ""
   });
-
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<ProfileData>(profileData);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchNames = async () => {
+      const { ngo_id, fsp_id } = user?.user_metadata || {};
+
+      const [ngoResult, fspResult] = await Promise.all([
+        getNgoById(ngo_id),
+        getFspById(fsp_id)
+      ]);
+
+      console.log(ngoResult)
+      console.log(fspResult)
+      setProfileData(prev => ({
+        ...prev,
+        ngoName: ngoResult?.data?.name || "",
+        fspName: fspResult?.data?.name || ""
+      }));
+    }
+    fetchNames();
+  }, []);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -77,7 +89,7 @@ const Profile = () => {
 
   return (
     <>
-      <div className="max-w-2xl mx-auto space-y-6 py-5">
+      <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -90,20 +102,14 @@ const Profile = () => {
           </Button>
         </div>
 
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
+         <div>
+          <h1 className="text-3xl font-bold tracking-tight">👤 Profile</h1>
           <p className="text-muted-foreground">
-            Manage your account information and preferences.
+            Manage your Personal Information
           </p>
         </div>
 
         <Card className="shadow-[var(--shadow-soft)]">
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-            <CardDescription>
-              Update your personal details below. Some fields cannot be edited.
-            </CardDescription>
-          </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -147,7 +153,7 @@ const Profile = () => {
               <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
-                value={isEditing ? editedData.phone : profileData.phone}
+                value={isEditing ? (editedData.phone ?? '') : (profileData.phone ?? '')}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 disabled={!isEditing}
                 className={!isEditing ? "bg-muted" : ""}
@@ -158,7 +164,7 @@ const Profile = () => {
               <Label htmlFor="ngo">NGO</Label>
               <Input
                 id="ngo"
-                value={profileData.ngo}
+                value={profileData.ngoName}
                 disabled
                 className="bg-muted"
               />
@@ -171,7 +177,7 @@ const Profile = () => {
               <Label htmlFor="fsp">FSP</Label>
               <Input
                 id="fsp"
-                value={profileData.fsp}
+                value={profileData.fspName}
                 disabled
                 className="bg-muted"
               />
