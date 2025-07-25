@@ -179,14 +179,22 @@ export const deleteGeofences = async (deletableIds: Array<string>): Promise<stri
  * Handles retrieving of geofences for a specific user
  */
 export const retrieveGeofences = async (
-  userId: string
+  fsp_id: string,
+  ngo_id: string
 ): Promise<{ data?: GeofencePolygon[]; error?: string }> => {
   const { data, error } = await fetchRows<GeoFenceRow>(
     SUPABASE_GEOFENCE_TABLE,
     "*",
-    [{ column: "created_by", operator: "eq", value: userId }]
+    [
+      { column: "persons.fsp_id", operator: "eq", value: fsp_id },
+      { column: "persons.ngo_id", operator: "eq", value: ngo_id }
+    ],
+    {
+      joinTable: "persons",
+      joinType: "inner",
+      joinColumns: ["id", "fsp_id", "ngo_id"]
+    }
   );
-
   if (error) {
     return { error: error.message || "Error fetching geofences" };
   }
@@ -212,12 +220,14 @@ export const retrieveGeofences = async (
  * Handles searching and filtering for geofences
  */
 export const searchGeofences = async (
-  userId: string,
+  fsp_id: string,
+  ngo_id: string,
   searchTerm: string,
   filterType: GeofenceType | null
 ): Promise<{ data?: GeofencePolygon[]; error?: string }> => {
   const filters: Array<DbFetchFilter> = [
-    { column: "created_by", operator: "eq", value: userId },
+    { column: "persons.fsp_id", operator: "eq", value: fsp_id },
+    { column: "persons.ngo_id", operator: "eq", value: ngo_id }
   ];
 
   if (searchTerm) {
@@ -231,7 +241,12 @@ export const searchGeofences = async (
   const { data, error } = await fetchRows<GeoFenceRow>(
     SUPABASE_GEOFENCE_TABLE,
     "*",
-    filters
+    filters,
+    {
+      joinTable: "persons",
+      joinType: "inner",
+      joinColumns: ["id", "fsp_id", "ngo_id"]
+    }
   );
 
   if (error) return { error: error.message || "Error fetching filtered geofences" };

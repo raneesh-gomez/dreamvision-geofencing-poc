@@ -18,8 +18,8 @@ const GeofenceProvider: React.FC<{ children: React.ReactNode }> = ({ children })
 
     const refreshGeofences = useCallback(async () => {
         if (!user) return;
-
-        const { data, error } = await retrieveGeofences(user.id);
+        const { fsp_id, ngo_id } = user.user_metadata
+        const { data, error } = await retrieveGeofences(fsp_id, ngo_id);
         if (error) {
             toast.error(error);
             return;

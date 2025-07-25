@@ -13,7 +13,9 @@ const GeofenceManager = () => {
 
     const handleExport = async () => {
         if (!user) return;
-        const { data: geofences } = await retrieveGeofences(user.id)
+        const { fsp_id, ngo_id } = user.user_metadata
+        const { data: geofences } = await retrieveGeofences(fsp_id, ngo_id);
+
         if (geofences) {
             const geojson = convertGeofencesToGeoJSON(geofences);
             const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
@@ -42,7 +44,7 @@ const GeofenceManager = () => {
                 </div>
                 <GeofenceCreateDialog />
             </div>
-            
+
             <div className="mt-6 flex-1 flex flex-col overflow-hidden">
                 <GeofenceList />
             </div>

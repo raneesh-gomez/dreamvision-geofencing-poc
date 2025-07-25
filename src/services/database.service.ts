@@ -1,13 +1,22 @@
 import { supabase } from "@/lib/supabase/client";
-import type { DbFetchFilter } from "@/types";
+import type { DbFetchFilter, JoinOptions } from "@/types";
 import type { PostgrestError } from "@supabase/supabase-js";
 
 export const fetchRows = async <T>(
   table: string,
   columns: string,
-  filters?: Array<DbFetchFilter>
+  filters?: Array<DbFetchFilter>,
+  join?: JoinOptions
 ): Promise<{ data: T[]; error: PostgrestError | null }> => {
-  let query = supabase.from(table).select(columns);
+  let select = columns;
+
+  if (join) {
+    const joinSelect = join.joinColumns?.join(", ") || "*";
+    const joinType = join.joinType ?? "inner";
+    select += `, ${join.joinTable}!${joinType}(${joinSelect})`;
+  }
+
+  let query = supabase.from(table).select(select);
   if (filters) {
     for (const filter of filters) {
       if (filter.operator === "eq") {
