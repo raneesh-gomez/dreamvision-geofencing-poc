@@ -67,7 +67,7 @@ const Login = () => {
         return () => {
             authListener.subscription.unsubscribe()
         }
-    }, [navigate, setIsAuthenticated, setUser])
+    }, [navigate, originalRoute, setIsAuthenticated, setUser])
 
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault()
