@@ -5,29 +5,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { 
     Eye, 
     Layers3, 
-    Trash, 
-    LandPlot,
-    Building2,
-    Users,
-    Locate ,
+    Trash,
     Globe
 } from "lucide-react";
-import { GeofenceColors, GeofenceTypes } from "@/constants";
+import { GeofenceColors } from "@/constants";
 import { GeofenceTypeLabels } from "../../constants";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
 import GeofenceEditDialog from "./GeofenceEditDialog";
 import type { GeofencePolygon, GeofenceType } from "@/types";
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { searchGeofences } from "@/services/geofence.service";
 import { useAppContext } from "@/hooks/use-app-context";
-
-const GeofenceTypeIcons: Record<GeofenceType, JSX.Element> = {
-  [GeofenceTypes.COUNTRY]: <LandPlot className="w-4 h-4" />,
-  [GeofenceTypes.BRANCH]: <Building2 className="w-4 h-4" />,
-  [GeofenceTypes.SUBBRANCH]: <Locate className="w-4 h-4" />,
-  [GeofenceTypes.FIELD_OFFICER]: <Users className="w-4 h-4" />,
-};
+import { GeofenceTypeIcons } from "./GeofenceIcons";
 
 const GeofenceList = () => {
     const { geofences, setFocusedGeofence, deleteGeofence } = useGeofenceContext();

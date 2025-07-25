@@ -8,9 +8,9 @@ import OrganizationalHierarchy from '@/components/organization/OrganizationalHie
 import GeofenceManager from '@/components/geofences/GeofenceManager';
 import { MapPin, Network } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import OrganizationalWidgets from '@/components/organization/OrganizationalWidgets';
 
 const Dashboard = () => {
-    console.log("Dashboard rendering")
     const [activeTab, setActiveTab] = useState<ActiveDashboardTabType>(ActiveDashboardTab.GEOFENCES);
 
     return (
@@ -68,14 +68,13 @@ const Dashboard = () => {
                                         />
                                         <MapDrawing />
                                     </CardContent>
-                                    {/* TODO Add geofence widgets panel */}
                                 </Card>
                             </div>
                         </APIProvider>
                     </TabsContent>
 
                     <TabsContent value={ActiveDashboardTab.ORGANIZATION} className="flex-1 flex overflow-hidden w-full pt-4">
-                        <Card className="flex flex-col w-full">
+                        <Card className="flex flex-col w-5/6">
                             <CardHeader>
                                 <CardTitle className="text-lg">Organizational Hierarchy</CardTitle>
                                 <CardDescription className="text-sm">
@@ -86,7 +85,7 @@ const Dashboard = () => {
                                 <OrganizationalHierarchy />
                             </CardContent>
                         </Card>
-                        {/* TODO Add geofence widgets panel */}
+                        <OrganizationalWidgets />
                     </TabsContent>
 
                     <div className='flex items-center justify-center text-center py-2'>
