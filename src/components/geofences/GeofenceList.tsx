@@ -6,7 +6,7 @@ import {
     Eye, 
     Layers3, 
     Trash,
-    Globe
+    Rows4
 } from "lucide-react";
 import { GeofenceColors } from "@/constants";
 import { GeofenceTypeLabels } from "../../constants";
@@ -92,7 +92,7 @@ const GeofenceList = () => {
                             onClick={() => setActiveTypeFilter(null)}
                             className="flex justify-center items-center gap-2 w-1/6"
                         >
-                            <Globe className="w-4 h-4" />
+                            <Rows4 className="w-4 h-4" />
                             All
                         </Button>
                         {Object.keys(GeofenceTypeLabels).map((type) => (

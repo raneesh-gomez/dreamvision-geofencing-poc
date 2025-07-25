@@ -52,7 +52,7 @@ export function Header() {
         <header className="h-16 bg-dashboard-header border-b border-border px-6 flex items-center justify-between drop-shadow-md">
             <div className="flex items-center cursor-pointer" onClick={() => navigate("/dashboard")}>
                 <h1 className="text-xl font-semibold text-dashboard-header-foreground">
-                    DreamLink 1.0
+                    DreamLink
                 </h1>
             </div>
 
