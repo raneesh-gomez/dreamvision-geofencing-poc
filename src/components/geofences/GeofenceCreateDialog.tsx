@@ -156,6 +156,7 @@ const GeofenceCreateDialog = () => {
                 <Button variant="outline" className="w-1/4 hover:cursor-pointer" onClick={handleExport}>
                     <Download className="w-3 h-3" />Export
                 </Button>
+                {/* TODO Add GeoJSON import functionality */}
                 <DialogTrigger asChild className="w-1/4">
                     <Button className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer">
                         <Plus className="w-5 h-5" />New Geofence

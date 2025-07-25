@@ -94,6 +94,7 @@ const Dashboard = () => {
                                         />
                                         <MapDrawing />
                                     </CardContent>
+                                    {/* TODO Add geofence widgets panel */}
                                 </Card>
                             </div>
                         </APIProvider>
@@ -111,6 +112,7 @@ const Dashboard = () => {
                                 <OrganizationalHierarchy />
                             </CardContent>
                         </Card>
+                        {/* TODO Add geofence widgets panel */}
                     </TabsContent>
 
                     <div className='flex items-center justify-center text-center py-4'>
