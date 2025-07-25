@@ -2,25 +2,52 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, Layers3, Trash } from "lucide-react";
-import { GeofenceColors } from "@/constants";
+import { 
+    Eye, 
+    Layers3, 
+    Trash, 
+    LandPlot,
+    Building2,
+    Users,
+    Locate ,
+    Globe
+} from "lucide-react";
+import { GeofenceColors, GeofenceTypes } from "@/constants";
 import { GeofenceTypeLabels } from "../../constants";
 import { useGeofenceContext } from "@/hooks/use-geofence-context";
 import GeofenceEditDialog from "./GeofenceEditDialog";
-import type { GeofencePolygon } from "@/types";
-import { useState } from "react";
+import type { GeofencePolygon, GeofenceType } from "@/types";
+import { useEffect, useState, type JSX } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { searchGeofences } from "@/services/geofence.service";
+import { useAppContext } from "@/hooks/use-app-context";
+
+const GeofenceTypeIcons: Record<GeofenceType, JSX.Element> = {
+  [GeofenceTypes.COUNTRY]: <LandPlot className="w-4 h-4" />,
+  [GeofenceTypes.BRANCH]: <Building2 className="w-4 h-4" />,
+  [GeofenceTypes.SUBBRANCH]: <Locate className="w-4 h-4" />,
+  [GeofenceTypes.FIELD_OFFICER]: <Users className="w-4 h-4" />,
+};
 
 const GeofenceList = () => {
     const { geofences, setFocusedGeofence, deleteGeofence } = useGeofenceContext();
+    const { user } = useAppContext();
+    const [activeTypeFilter, setActiveTypeFilter] = useState<GeofenceType | null>(null);
     const [search, setSearch] = useState<string>("");
+    const [filteredGeofences, setFilteredGeofences] = useState<GeofencePolygon[]>([]);
     const [selectedToDelete, setSelectedToDelete] = useState<GeofencePolygon | null>(null);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState<boolean>(false);
     const [childrenToDelete, setChildrenToDelete] = useState<GeofencePolygon[]>([]);
 
-    const filteredGeofences = geofences.filter(g =>
-        g.data.name.toLowerCase().includes(search.toLowerCase())
-    );
+    useEffect(() => {
+        if (!user) return;
+
+        const loadFilteredGeofences = async () => {
+            const { data, error } = await searchGeofences(user.id, search, activeTypeFilter);
+            if (!error && data) setFilteredGeofences(data);
+        };
+        loadFilteredGeofences();
+    }, [search, activeTypeFilter, user]);
 
     const handleDeleteClick = (geofence: GeofencePolygon) => {
         const collectChildren = (targetId: string): GeofencePolygon[] => {
@@ -69,6 +96,27 @@ const GeofenceList = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
+                    <div className="flex flex-wrap items-center justify-between gap-2 my-4">
+                        <Button
+                            variant={activeTypeFilter === null ? "default" : "outline"}
+                            onClick={() => setActiveTypeFilter(null)}
+                            className="flex justify-center items-center gap-2"
+                        >
+                            <Globe className="w-4 h-4" />
+                            All
+                        </Button>
+                        {Object.keys(GeofenceTypeLabels).map((type) => (
+                            <Button
+                                key={type}
+                                variant={activeTypeFilter === type ? "default" : "outline"}
+                                onClick={() => setActiveTypeFilter(type as GeofenceType)}
+                                className="flex justify-center items-center gap-2"
+                            >
+                                {GeofenceTypeIcons[type as GeofenceType]}
+                                {GeofenceTypeLabels[type as GeofenceType]}
+                            </Button>
+                        ))}
+                        </div>
                 </div>
                 <ScrollArea className="flex-1 overflow-y-auto pr-3">
                     <ul className="space-y-3">

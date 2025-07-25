@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { GeofenceData, GeofencePolygon, GeofenceType, LatLngCoord } from '@/types';
+import type { DbFetchFilter, GeofenceData, GeofencePolygon, GeofenceType, LatLngCoord } from '@/types';
 import {
   clipToParent,
   clipToHigherPrioritySiblings,
@@ -190,6 +190,51 @@ export const retrieveGeofences = async (
   if (error) {
     return { error: error.message || "Error fetching geofences" };
   }
+
+  const polygons: GeofencePolygon[] = (data ?? []).map((row) => ({
+    id: row.id,
+    originalPath: row.original_path,
+    clippedPath: row.clipped_path,
+    data: {
+      name: row.name,
+      type: row.type as GeofenceType,
+      priority: row.priority,
+      parentId: row.parent_id ?? null,
+      metadata: row.metadata ?? {},
+      countryISO: row.country_iso ?? undefined,
+    },
+  }));
+
+  return { data: polygons };
+};
+
+/**
+ * Handles searching and filtering for geofences
+ */
+export const searchGeofences = async (
+  userId: string,
+  searchTerm: string,
+  filterType: GeofenceType | null
+): Promise<{ data?: GeofencePolygon[]; error?: string }> => {
+  const filters: Array<DbFetchFilter> = [
+    { column: "created_by", operator: "eq", value: userId },
+  ];
+
+  if (searchTerm) {
+    filters.push({ column: "name", operator: "ilike", value: `%${searchTerm}%` });
+  }
+
+  if (filterType) {
+    filters.push({ column: "type", operator: "eq", value: filterType });
+  }
+
+  const { data, error } = await fetchRows<GeoFenceRow>(
+    SUPABASE_GEOFENCE_TABLE,
+    "*",
+    filters
+  );
+
+  if (error) return { error: error.message || "Error fetching filtered geofences" };
 
   const polygons: GeofencePolygon[] = (data ?? []).map((row) => ({
     id: row.id,

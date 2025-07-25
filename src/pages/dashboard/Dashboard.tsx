@@ -40,12 +40,12 @@ const Dashboard = () => {
                                 {/* Geofence Manager */}
                                 <Card className="flex flex-col w-1/3">
                                     <CardHeader>
-                                        <CardTitle className="text-lg">📍 Geofence Manager</CardTitle>
+                                        <CardTitle className="text-lg">📍 Manage Geofences</CardTitle>
                                         <CardDescription className="text-sm">
-                                            Create, edit, and manage geofences with intuitive controls. Select a geofence to view its details or update its structure in real time.
+                                            Create, edit, and manage geofences with intuitive controls. Select a geofence to view more details.
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className="flex-1 overflow-hidden p-4">
+                                    <CardContent className="flex-1 overflow-hidden px-4">
                                         <GeofenceManager />
                                     </CardContent>
                                 </Card>
@@ -58,7 +58,7 @@ const Dashboard = () => {
                                             Visualize geofences on a live map. Draw new boundaries or adjust existing ones with precision and instant feedback.
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className="flex-1 overflow-hidden p-4">
+                                    <CardContent className="flex-1 overflow-hidden px-4">
                                         <Map
                                             style={{ height: "100%", width: "100%" }}
                                             defaultCenter={{ lat: 22.54992, lng: 0 }}

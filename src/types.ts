@@ -30,6 +30,14 @@ type GeoFenceRow = {
   updated_date: string;
 };
 
+type DbOperator = "eq" | "ilike";
+
+type DbFetchFilter = {
+  column: string;
+  operator: DbOperator;
+  value: unknown
+};
+
 export interface GeofenceData {
   name: string;
   type: GeofenceType;
@@ -83,5 +91,7 @@ export type {
     LatLngCoord,
     GeofenceType,
     ActiveDashboardTabType,
-    GeoFenceRow
+    GeoFenceRow,
+    DbOperator,
+    DbFetchFilter
 };

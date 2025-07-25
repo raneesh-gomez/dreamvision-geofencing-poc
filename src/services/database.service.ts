@@ -1,17 +1,19 @@
 import { supabase } from "@/lib/supabase/client";
+import type { DbFetchFilter } from "@/types";
 import type { PostgrestError } from "@supabase/supabase-js";
 
 export const fetchRows = async <T>(
   table: string,
   columns: string,
-  filters?: { column: string; operator: "eq"; value: unknown }[]
+  filters?: Array<DbFetchFilter>
 ): Promise<{ data: T[]; error: PostgrestError | null }> => {
-
   let query = supabase.from(table).select(columns);
   if (filters) {
     for (const filter of filters) {
       if (filter.operator === "eq") {
         query = query.eq(filter.column, filter.value);
+      } else if (filter.operator === "ilike") {
+        query = query.ilike(filter.column, filter.value as string);
       }
     }
   }
