@@ -16,7 +16,7 @@ import { updateUserMetadata } from "@/services/auth.service";
 const Profile = () => {
 
   const navigate = useNavigate();
-  const { user } = useAppContext();
+  const { user, setUser } = useAppContext();
 
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: user?.user_metadata.first_name,
@@ -89,6 +89,15 @@ const Profile = () => {
       }
       setProfileData(editedData);
       setIsEditing(false);
+      setUser({
+        ...user,
+        user_metadata: {
+          ...user.user_metadata,
+          first_name: editedData.firstName,
+          last_name: editedData.lastName,
+          phone_number: editedData.phone
+        }
+      });
       toast.success("Profile updated successfully!");
 
     } catch {
