@@ -38,6 +38,12 @@ type DbFetchFilter = {
   value: unknown
 };
 
+export type JoinOptions = {
+  joinTable: string;
+  joinType?: "inner" | "left";
+  joinColumns?: string[];
+};
+
 export interface GeofenceData {
   name: string;
   type: GeofenceType;

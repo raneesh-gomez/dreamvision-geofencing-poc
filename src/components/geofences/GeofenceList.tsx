@@ -2,9 +2,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-    Eye, 
-    Layers3, 
+import {
+    Eye,
+    Layers3,
     Trash,
     Rows4
 } from "lucide-react";
@@ -32,7 +32,8 @@ const GeofenceList = () => {
         if (!user) return;
 
         const loadFilteredGeofences = async () => {
-            const { data, error } = await searchGeofences(user.id, search, activeTypeFilter);
+            const { fsp_id, ngo_id } = user.user_metadata
+            const { data, error } = await searchGeofences(fsp_id, ngo_id, search, activeTypeFilter);
             if (!error && data) setFilteredGeofences(data);
         };
         loadFilteredGeofences();
@@ -107,7 +108,7 @@ const GeofenceList = () => {
                                 {GeofenceTypeLabels[type as GeofenceType]}
                             </Button>
                         ))}
-                        </div>
+                    </div>
                 </div>
                 <ScrollArea className="flex-1 overflow-y-auto pr-3">
                     <ul className="space-y-3">
