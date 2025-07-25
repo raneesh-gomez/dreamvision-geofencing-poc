@@ -37,7 +37,7 @@ const GeofenceList = () => {
             if (!error && data) setFilteredGeofences(data);
         };
         loadFilteredGeofences();
-    }, [search, activeTypeFilter, user]);
+    }, [search, activeTypeFilter, user, geofences]);
 
     const handleDeleteClick = (geofence: GeofencePolygon) => {
         const collectChildren = (targetId: string): GeofencePolygon[] => {
