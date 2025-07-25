@@ -17,7 +17,6 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { searchGeofences } from "@/services/geofence.service";
 import { useAppContext } from "@/hooks/use-app-context";
-import { GeofenceTypeIcons } from "./GeofenceIcons";
 
 const GeofenceList = () => {
     const { geofences, drawingEnabled, setFocusedGeofence, deleteGeofence } = useGeofenceContext();
@@ -105,7 +104,6 @@ const GeofenceList = () => {
                                 className="flex justify-center items-center gap-2 w-1/6 hover:cursor-pointer"
                                 disabled={drawingEnabled}
                             >
-                                {GeofenceTypeIcons[type as GeofenceType]}
                                 {GeofenceTypeLabels[type as GeofenceType]}
                             </Button>
                         ))}
