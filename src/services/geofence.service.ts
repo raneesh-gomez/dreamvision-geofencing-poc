@@ -60,7 +60,7 @@ export const createGeofence = async (
   const { id, originalPath, clippedPath, data } = newGeofence
   const currentTimestamp = new Date().toISOString()
 
-  const { error } = await insertRow(SUPABASE_GEOFENCE_TABLE, {
+  const { error } = await insertRow<GeoFenceRow>(SUPABASE_GEOFENCE_TABLE, {
     id,
     created_by: user.id,
     original_path: originalPath,
@@ -73,6 +73,8 @@ export const createGeofence = async (
     country_iso: data.countryISO ?? null,
     created_date: currentTimestamp,
     updated_date: currentTimestamp,
+    fsp_id: user.user_metadata.fsp_id,
+    ngo_id: user.user_metadata.ngo_id
   });
 
   if (error) return { error: "There was an error when creating the geofence" }
@@ -186,14 +188,9 @@ export const retrieveGeofences = async (
     SUPABASE_GEOFENCE_TABLE,
     "*",
     [
-      { column: "persons.fsp_id", operator: "eq", value: fsp_id },
-      { column: "persons.ngo_id", operator: "eq", value: ngo_id }
-    ],
-    {
-      joinTable: "persons",
-      joinType: "inner",
-      joinColumns: ["id", "fsp_id", "ngo_id"]
-    }
+      { column: "fsp_id", operator: "eq", value: fsp_id },
+      { column: "ngo_id", operator: "eq", value: ngo_id }
+    ]
   );
   if (error) {
     return { error: error.message || "Error fetching geofences" };
@@ -226,8 +223,8 @@ export const searchGeofences = async (
   filterType: GeofenceType | null
 ): Promise<{ data?: GeofencePolygon[]; error?: string }> => {
   const filters: Array<DbFetchFilter> = [
-    { column: "persons.fsp_id", operator: "eq", value: fsp_id },
-    { column: "persons.ngo_id", operator: "eq", value: ngo_id }
+    { column: "fsp_id", operator: "eq", value: fsp_id },
+    { column: "ngo_id", operator: "eq", value: ngo_id }
   ];
 
   if (searchTerm) {
@@ -241,12 +238,7 @@ export const searchGeofences = async (
   const { data, error } = await fetchRows<GeoFenceRow>(
     SUPABASE_GEOFENCE_TABLE,
     "*",
-    filters,
-    {
-      joinTable: "persons",
-      joinType: "inner",
-      joinColumns: ["id", "fsp_id", "ngo_id"]
-    }
+    filters
   );
 
   if (error) return { error: error.message || "Error fetching filtered geofences" };

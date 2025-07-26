@@ -28,6 +28,8 @@ type GeoFenceRow = {
   country_iso?: string | null;
   created_date: string;
   updated_date: string;
+  fsp_id: string;
+  ngo_id: string;
 };
 
 type DbOperator = "eq" | "ilike";
